@@ -1,49 +1,10 @@
-// Changer cette version à chaque publication de fichiers mis en cache.
-const CACHE_NAME = 'elite1-pwa-v9';
-const urlsToCache = [
-  './',
-  './index.html',
-  './index1.html',
-  './index2.html',
-  './style.css',
-  './style1.css',
-  './style2.css',
-  './manifest.json',
-  './icon-192.png',
-  './icon-512.png',
-  './live-features.js',
-  './device-labels.js',
-  './provisioning.js'
-];
-
-self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(urlsToCache))
-      .then(() => self.skipWaiting())
-  );
-});
-
-self.addEventListener('activate', event => {
-  event.waitUntil(
-    caches.keys()
-      .then(keys => Promise.all(
-        keys.filter(key => /^(elite1-pwa-|elite-energy-pwa-)/.test(key) && key !== CACHE_NAME)
-          .map(key => caches.delete(key))
-      ))
-      .then(() => self.clients.claim())
-  );
-});
-
+const CACHE_NAME = 'elite-energy-pwa-v8';
+const urlsToCache = ['./', './index.html', './index1.html', './index2.html', './device-labels.js', './live-features.js', './provisioning.js', './style.css', './style1.css', './style2.css', './manifest.json', './icon-192.png', './icon-512.png'];
+self.addEventListener('install', event => event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache)).then(() => self.skipWaiting())));
+self.addEventListener('activate', event => event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key.startsWith('elite') && key !== CACHE_NAME).map(key => caches.delete(key)))).then(() => self.clients.claim())));
 self.addEventListener('fetch', event => {
-  const url = new URL(event.request.url);
-  // Les API et les données Firebase doivent rester accessibles directement.
-  if (event.request.method !== 'GET' || url.origin !== self.location.origin || url.pathname.startsWith('/api/')) return;
-  event.respondWith(
-    caches.open(CACHE_NAME)
-      .then(cache => cache.match(event.request))
-      .then(response => response || fetch(event.request))
-  );
+  if (event.request.method !== 'GET' || new URL(event.request.url).pathname.startsWith('/api/')) return;
+  event.respondWith(fetch(event.request).then(response => { const copy = response.clone(); caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy)); return response; }).catch(() => caches.match(event.request)));
 });
 self.addEventListener('push', event => {
   let payload = { title: 'ELITE ENERGY', body: 'Nouvelle information disponible.', url: './index2.html' };
@@ -58,5 +19,3 @@ self.addEventListener('notificationclick', event => {
     return clients.openWindow(target);
   }));
 });
-
-

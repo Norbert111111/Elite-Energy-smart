@@ -357,6 +357,8 @@ body {
 
   .main-wrapper {
     margin: 10px;
+    width: calc(100% - 20px);
+    box-sizing: border-box;
     padding: 15px;
     border-radius: 20px;
     box-shadow: none; /* Flatter look on mobile to save space */
@@ -411,21 +413,39 @@ body {
   
   .global-command {
     width: 100%;
-    flex-direction: row;
-    gap: 10px;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 7px;
   }
 
   .header-right {
     width: 100%;
-    justify-content: space-between;
+    align-items: stretch;
+  }
+
+  #user-info-badge {
+    grid-column: 1 / -1;
+    margin: 0 0 3px !important;
+    padding: 8px 10px !important;
+    justify-content: center;
+    min-width: 0;
   }
   
   .header-right .btn-glow {
-    flex: 1;
-    font-size: 12px;
-    padding: 12px 8px;
+    width: 100%;
+    min-width: 0;
+    min-height: 38px;
+    font-size: 9px;
+    line-height: 1.15;
+    padding: 8px 4px;
+    gap: 4px;
     justify-content: center;
-    white-space: nowrap;
+    white-space: normal;
+  }
+
+  .header-right .btn-glow:last-child {
+    margin-left: 0 !important;
+    font-size: 13px;
   }
   
   .dashboard-grid { 
@@ -507,14 +527,34 @@ body {
   
   .bottom-nav {
     bottom: 15px;
-    padding: 12px 0;
-    max-width: 95%;
+    width: calc(100% - 40px);
+    max-width: 360px;
+    padding: 8px 6px;
     border-radius: 100px;
+    box-sizing: border-box;
+    gap: 2px;
   }
 
   .bottom-nav .nav-item {
-    font-size: 22px;
-    padding: 8px 20px;
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 17px;
+    padding: 0;
+  }
+
+  #voiceCommandButton, #predictionVoiceButton {
+    width: 38px;
+    height: 38px;
+    flex-basis: 38px;
+  }
+
+  #voiceCommandButton i,
+  #predictionVoiceButton::before {
+    font-size: 15px;
   }
 }
 

@@ -195,6 +195,10 @@
     .presence-activity { color:#334155; font-size:.88rem; margin-bottom:.45rem; }
     .presence-time { color:#94a3b8; font-size:.78rem; }
 
+    #inactiveUsersTable th,
+    #inactiveUsersTable td { padding: 1rem; border-bottom: 1px solid var(--card-border); }
+    #inactiveUsersTable th { color: var(--text-gray); font-size: .82rem; text-transform: uppercase; letter-spacing: .04em; }
+
     /* Lock Screen */
     #admin-lock {
       position: fixed;
@@ -247,6 +251,46 @@
     @media (max-width: 768px) {
       .admin-grid { grid-template-columns: 1fr; }
       body { padding: 2rem 1rem; }
+
+      .admin-card { padding: 1.5rem 1rem; border-radius: 20px; }
+
+      #inactiveUsersTable,
+      #inactiveUsersTable tbody,
+      #inactiveUsersTable tr,
+      #inactiveUsersTable td { display: block; width: 100%; }
+
+      #inactiveUsersTable thead { display: none; }
+
+      #inactiveUsersTable tr {
+        margin-bottom: 1rem;
+        padding: .45rem .85rem;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0 !important;
+        border-left: 4px solid #ef4444 !important;
+        border-radius: 16px;
+      }
+
+      #inactiveUsersTable td {
+        display: grid;
+        grid-template-columns: minmax(82px, .8fr) minmax(0, 1.2fr);
+        gap: .75rem;
+        align-items: center;
+        padding: .7rem .2rem !important;
+        border-bottom: 1px dashed #dbe3ee;
+        overflow-wrap: anywhere;
+      }
+
+      #inactiveUsersTable td:last-child { border-bottom: 0; }
+      #inactiveUsersTable td::before {
+        content: attr(data-label);
+        color: var(--text-gray);
+        font-size: .72rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+      }
+
+      #inactiveUsersTable .account-toggle { width: 100%; min-width: 0; }
     }
   </style>
 </head>
@@ -551,11 +595,11 @@
               const u = usersNode[username];
               const row = `
                 <tr style="border-bottom: 1px solid var(--card-border);">
-                  <td style="padding: 1rem; color: var(--text-dark); font-weight: 500;">${escapeHTML(u.nomComplet || '-')}</td>
-                  <td style="padding: 1rem; color: var(--primary); font-family: monospace;">${escapeHTML(username)}</td>
-                  <td style="padding: 1rem; color: var(--text-dark);">${escapeHTML(u.role || 'Utilisateur')}</td>
-                  <td style="padding: 1rem; color: var(--text-dark);">${escapeHTML(u.appareilAssigne || deviceId)}</td>
-                  <td style="padding: 1rem;">
+                  <td data-label="Nom" style="padding: 1rem; color: var(--text-dark); font-weight: 500;">${escapeHTML(u.nomComplet || '-')}</td>
+                  <td data-label="Identifiant" style="padding: 1rem; color: var(--primary); font-family: monospace;">${escapeHTML(username)}</td>
+                  <td data-label="Rôle" style="padding: 1rem; color: var(--text-dark);">${escapeHTML(u.role || 'Utilisateur')}</td>
+                  <td data-label="Appareil" style="padding: 1rem; color: var(--text-dark);">${escapeHTML(u.appareilAssigne || deviceId)}</td>
+                  <td data-label="Action" style="padding: 1rem;">
                     <button class="account-toggle" data-device="${escapeHTML(deviceId)}" data-user="${escapeHTML(username)}" data-active="${u.active === false ? 'false' : 'true'}">${u.active === false ? 'Activer' : 'Désactiver'}</button>
                   </td>
                 </tr>
@@ -571,7 +615,7 @@
         } else {
           tbody.innerHTML = rowsHTML;
         }
-        inactiveBody.innerHTML = inactiveHTML || '<tr><td>Aucun appareil désactivé.</td></tr>';
+        inactiveBody.innerHTML = inactiveHTML || '<tr><td data-label="État" colspan="5">Aucun appareil désactivé.</td></tr>';
       });
     }
 

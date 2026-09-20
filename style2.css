@@ -350,6 +350,7 @@ canvas {
 @media (max-width: 768px) {
   .dashboard {
     margin: 10px;
+    width: calc(100% - 20px);
     padding: 15px;
     border-radius: 20px;
     border: none;
@@ -375,16 +376,70 @@ canvas {
   .main-grid, .depart-grid {
     grid-template-columns: 1fr;
     gap: 15px;
+    min-width: 0;
   }
 
   .card, .depart-card {
     padding: 20px 15px;
     border-radius: 20px;
+    min-width: 0;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .bottom-nav {
     bottom: 15px;
-    max-width: 95%;
+    width: calc(100% - 40px);
+    max-width: 360px;
+    padding: 8px 6px;
+    gap: 2px;
+    box-sizing: border-box;
+  }
+
+  .bottom-nav .nav-item {
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    font-size: 17px;
+  }
+
+  #voiceCommandButton, #predictionVoiceButton {
+    width: 38px;
+    height: 38px;
+    flex-basis: 38px;
+  }
+
+  #voiceCommandButton i,
+  #predictionVoiceButton::before { font-size: 15px; }
+
+  /* Les indicateurs et graphiques globaux restent toujours rendus sur téléphone. */
+  .card.line, .card.gauges {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .card.line .chart-wrapper {
+    width: 100%;
+    min-height: 190px;
+    position: relative;
+  }
+
+  .card.line canvas {
+    width: 100% !important;
+    height: 190px !important;
+  }
+
+  .card.gauges { min-height: 0; }
+
+  [data-aos] {
+    opacity: 1 !important;
+    transform: none !important;
   }
   
   .hide-on-mobile { display: none; }
@@ -486,3 +541,15 @@ canvas {
 .card.bars .chart-wrapper, .card.power-curve .chart-wrapper { min-height: 210px; position: relative; }
 .card.bars canvas, .card.power-curve canvas { height: 210px !important; }
 @keyframes voicePulse { 50% { box-shadow: 0 0 0 10px rgba(239, 68, 68, .12); } }
+
+/* Placé après les styles des contrôles pour garantir leur format compact. */
+@media (max-width: 768px) {
+  #voiceCommandButton, #predictionVoiceButton {
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
+  }
+
+  #voiceCommandButton i,
+  #predictionVoiceButton::before { font-size: 15px; }
+}
