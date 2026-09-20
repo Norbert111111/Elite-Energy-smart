@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ELITE-ENERGY - Connexion</title>
+
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#3b82f6">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-database-compat.js"></script>
+
+  <style>
+    :root {
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --primary-light: #eff6ff;
+      --text-dark: #0f172a;
+      --text-gray: #475569;
+      --text-light-muted: #94a3b8;
+      --bg: #f4f7fa;
+      --card-bg: rgba(255, 255, 255, 0.85);
+      --card-border: rgba(226, 232, 240, 0.8);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+
+    body {
+      background: var(--bg);
+      background-image: radial-gradient(at 0% 0%, hsla(210,100%,97%,1) 0, transparent 50%), 
+                        radial-gradient(at 100% 100%, hsla(218,100%,96%,1) 0, transparent 50%);
+      color: var(--text-dark);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .login-wrapper {
+      width: 100%;
+      max-width: 1200px;
+    }
+
+    .login-container {
+      display: flex;
+      background: var(--card-bg);
+      border-radius: 32px;
+      box-shadow: 0 30px 60px rgba(15, 23, 42, 0.05), 0 0 0 8px rgba(255,255,255,0.4);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--card-border);
+      overflow: hidden;
+      min-height: 650px;
+    }
+
+    /* Left Branding */
+    .info-section {
+      flex: 1.2;
+      background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+      padding: 5rem 4rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+    }
+
+    .brand-logo img {
+      width: 80px;
+      height: 80px;
+      border-radius: 20px;
+      object-fit: cover;
+      margin-bottom: 2.5rem;
+      box-shadow: 0 10px 20px rgba(59, 130, 246, 0.15);
+    }
+
+    .info-section h2 {
+      font-size: 0.95rem;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 2.5px;
+      font-weight: 800;
+      margin-bottom: 1.2rem;
+    }
+
+    .info-section h1 {
+      font-size: 3.5rem;
+      font-weight: 800;
+      color: var(--text-dark);
+      line-height: 1.1;
+      margin-bottom: 1.5rem;
+      letter-spacing: -1px;
+    }
+
+    .info-section p {
+      font-size: 1.15rem;
+      color: var(--text-gray);
+      line-height: 1.8;
+      margin-bottom: 3.5rem;
+      max-width: 450px;
+    }
+
+    .highlight {
+      color: var(--primary);
+      font-weight: 800;
+    }
+
+    .feature-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      font-size: 1.05rem;
+    }
+
+    .feature-item i {
+      width: 36px;
+      height: 36px;
+      background: white;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      box-shadow: 0 4px 10px rgba(59, 130, 246, 0.1);
+    }
+
+    /* Right Form */
+    .form-section {
+      flex: 1;
+      padding: 4rem 5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      background: white;
+    }
+
+    .form-header {
+      margin-bottom: 3.5rem;
+    }
+
+    .form-header h3 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--text-dark);
+      margin-bottom: 0.8rem;
+      letter-spacing: -0.5px;
+    }
+
+    .form-header p {
+      color: var(--text-gray);
+      font-size: 1.05rem;
+    }
+
+    .input-group {
+      margin-bottom: 2rem;
+    }
+
+    .input-group label {
+      display: block;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 0.8rem;
+    }
+
+    .input-icon {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-icon i {
+      position: absolute;
+      left: 1.2rem;
+      color: var(--text-light-muted);
+      font-size: 1.2rem;
+      transition: color 0.3s;
+    }
+
+    .input-icon input {
+      width: 100%;
+      padding: 1.2rem 1.2rem 1.2rem 3.2rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 16px;
+      font-size: 1.05rem;
+      color: var(--text-dark);
+      background: #f8fafc;
+      transition: all 0.3s;
+      outline: none;
+      font-weight: 500;
+    }
+
+    .input-icon input::placeholder {
+      color: #94a3b8;
+      font-weight: 400;
+    }
+
+    .input-icon input:focus {
+      border-color: var(--primary);
+      background: white;
+      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+    }
+
+    .input-icon input:focus + i, .input-icon:focus-within i {
+      color: var(--primary);
+    }
+
+    .btn-primary {
+      width: 100%;
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 1.2rem;
+      border-radius: 16px;
+      font-size: 1.1rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.8rem;
+      transition: all 0.3s;
+      margin-top: 3rem;
+      box-shadow: 0 10px 20px rgba(59, 130, 246, 0.2);
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 15px 25px rgba(59, 130, 246, 0.3);
+    }
+
+    .back-home {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text-gray);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      margin-top: 2.5rem;
+      transition: color 0.3s;
+    }
+    
+    .back-home:hover {
+      color: var(--primary);
+    }
+
+    @media (max-width: 992px) {
+      .login-container { flex-direction: column; }
+      .info-section { padding: 4rem 3rem; }
+      .form-section { padding: 4rem 3rem; }
+      .info-section h1 { font-size: 2.8rem; }
+    }
+
+    @media (max-width: 480px) {
+      body { padding: 1rem; }
+      .form-section { padding: 2.5rem 1.5rem; }
+      .info-section { padding: 2.5rem 1.5rem; }
+      .info-section h1 { font-size: 2.2rem; }
+    }
+  </style>
+</head>
+
+<body>
+<script>
+document.addEventListener("keydown", function(e) {
+    if (
+        (e.ctrlKey && e.key.toLowerCase() === "c") ||
+        (e.ctrlKey && e.key.toLowerCase() === "u") ||
+        (e.ctrlKey && e.key.toLowerCase() === "a") ||
+        (e.ctrlKey && e.key.toLowerCase() === "s")
+    ) {
+        e.preventDefault();
+    }
+});
+</script>
+
+  <div class="login-wrapper">
+    <div class="login-container">
+      
+      <!-- Left side: Branding / Info -->
+      <div class="info-section">
+        <div class="brand-logo">
+          <img src="images/logo_elite.png" alt="Logo ELITE ENERGY" style="width: 200px; height: auto; border-radius: 0; box-shadow: none;">
+        </div>
+        <h2>Système de numérisation</h2>
+        <h1>LES ELECTRO-ELITES</h1>
+        <p>
+          Bienvenue dans le système de gestion du réseau de transport électrique en RDC conçu par
+          <span class="highlight">@electro-elites</span>.
+        </p>
+        <div class="feature-list">
+          <div class="feature-item"><i class="fas fa-bolt"></i> Suivi en temps réel</div>
+          <div class="feature-item"><i class="fas fa-brain"></i> Intelligence Artificielle</div>
+          <div class="feature-item"><i class="fas fa-shield-alt"></i> Sécurité maximale</div>
+        </div>
+      </div>
+
+      <!-- Right side: Login form -->
+      <div class="form-section">
+        <div class="form-header">
+          <h3>Bon retour !</h3>
+          <p>Connectez-vous à votre espace d'administration.</p>
+        </div>
+
+        <div class="login-box">
+          <div class="input-group">
+            <label for="username">Nom d'utilisateur</label>
+            <div class="input-icon">
+              <i class="fas fa-user"></i>
+              <input type="text" id="username" placeholder="Entrez votre identifiant" autocomplete="off">
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label for="password">Mot de passe</label>
+            <div class="input-icon">
+              <i class="fas fa-lock"></i>
+              <input type="password" id="password" placeholder="••••••••" autocomplete="new-password">
+            </div>
+          </div>
+
+          <button class="btn-primary" onclick="login()">Se Connecter <i class="fas fa-arrow-right"></i></button>
+
+          <a href="index.html" class="back-home"><i class="fas fa-arrow-left"></i> Retour à l'accueil</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    let modeSilencieux = false;
+
+    function parler(message) {
+      if (!window.speechSynthesis) return;
+      const utterance = new SpeechSynthesisUtterance(message);
+      utterance.lang = "fr-FR";
+      speechSynthesis.speak(utterance);
+    }
+
+    window.addEventListener("load", () => {
+      document.getElementById("username").value = "";
+      document.getElementById("password").value = "";
+      setTimeout(() => {
+        parler("Connectez-vous au réseau électrique intelligent 5.0 en RDC.");
+      }, 500);
+    });
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyArEB0lH1tz3OOvrgKzL0cypYfMpQVgPm0",
+      authDomain: "maison-iot-b0dd6.firebaseapp.com",
+      databaseURL: "https://maison-iot-b0dd6-default-rtdb.firebaseio.com",
+      projectId: "maison-iot-b0dd6",
+      storageBucket: "maison-iot-b0dd6.appspot.com",
+      messagingSenderId: "838021465845",
+      appId: "1:838021465845:web:b277f02fd883b0c23627bc",
+      measurementId: "G-P697GH67M1"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    function login() {
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value.trim();
+
+      if (username === "" || password === "") {
+        alert("Veuillez remplir tous les champs.");
+        return;
+      }
+
+      // 🔍 Recherche intelligente : on parcourt tous les appareils enregistrés
+      database.ref("/").once("value").then((snapshot) => {
+        const allData = snapshot.val();
+        if (!allData) {
+          alert("Aucune donnée trouvée dans la base.");
+          return;
+        }
+
+        let userFound = false;
+
+        // Parcours de chaque appareil (ELITE1, ELITE2, etc.)
+        for (const deviceId in allData) {
+          const usersKey = "users" + deviceId;
+          const usersNode = allData[deviceId][usersKey];
+
+          if (usersNode && usersNode[username]) {
+            const userData = usersNode[username];
+            userFound = true;
+
+            if (userData.active === false) {
+              alert("Ce compte est désactivé. Contactez l'administrateur.");
+              break;
+            }
+
+            if (userData.password === password) {
+              // ✅ Connexion réussie
+              sessionStorage.setItem("isAuthenticated", "true");
+              sessionStorage.setItem("currentUser", username);
+              sessionStorage.setItem("currentDevice", deviceId);
+              sessionStorage.setItem("userRole", userData.role || "Utilisateur");
+              sessionStorage.setItem("userFullName", userData.nomComplet || username);
+              // Les prédictions vocales restent silencieuses pendant la première heure de connexion.
+              sessionStorage.setItem("voicePredictionsEligibleAt", String(Date.now() + 60 * 60 * 1000));
+
+              // Redirection selon le rôle
+              if (userData.role === "Technicien") {
+                window.location.href = "index2.html";
+              } else {
+                window.location.href = "index1.html";
+              }
+            } else {
+              alert("Mot de passe incorrect.");
+            }
+            break;
+          }
+        }
+
+        if (!userFound) {
+          alert("Nom d'utilisateur non trouvé.");
+        }
+      }).catch((error) => {
+        console.error("Erreur Firebase :", error);
+        alert("Erreur de connexion Firebase.");
+      });
+    }
+
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("service-worker.js")
+          .then(reg => console.log("Service Worker enregistré", reg))
+          .catch(err => console.log("Erreur Service Worker", err));
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+{
+  "name": "site-web-elite-energie",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "check": "node --check server.js && node --check live-features.js && node --check service-worker.js",
+    "test": "npm run check"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "resend": "^6.25.0",
+    "web-push": "^3.6.7"
+  }
+}

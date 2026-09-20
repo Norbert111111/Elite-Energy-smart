@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact - Elite Energy</title>
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --primary-light: #eff6ff;
+      --text-dark: #0f172a;
+      --text-gray: #475569;
+      --text-light-muted: #94a3b8;
+      --bg: #f4f7fa;
+      --card-border: rgba(226, 232, 240, 0.8);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+
+    body {
+      background: var(--bg);
+      background-image: radial-gradient(at 0% 0%, hsla(210,100%,97%,1) 0, transparent 50%), 
+                        radial-gradient(at 100% 100%, hsla(218,100%,96%,1) 0, transparent 50%);
+      color: var(--text-dark);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    a { text-decoration: none; }
+    
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 5%;
+      width: 100%;
+    }
+
+    /* Navbar */
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem 0;
+      margin-top: 1rem;
+    }
+
+    .nav-wrapper {
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(20px);
+      border-radius: 100px;
+      padding: 0.6rem 2rem;
+      border: 1px solid var(--card-border);
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.03);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 3rem;
+    }
+
+    .nav-links a {
+      color: var(--text-gray);
+      font-weight: 600;
+      font-size: 1rem;
+      transition: color 0.3s;
+    }
+
+    .nav-links a:hover, .nav-links a.active {
+      color: var(--primary);
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      color: white;
+      padding: 0.8rem 2rem;
+      border-radius: 50px;
+      font-weight: 700;
+      font-size: 1rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.8rem;
+      transition: all 0.3s;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(59, 130, 246, 0.25);
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-hover);
+      transform: translateY(-2px);
+    }
+
+    /* Contact Section */
+    .contact-wrapper {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      margin: 4rem 0 6rem;
+      align-items: start;
+    }
+
+    .contact-info {
+      padding-top: 2rem;
+    }
+
+    .contact-info h1 {
+      font-size: 3rem;
+      font-weight: 800;
+      margin-bottom: 1rem;
+      color: var(--text-dark);
+      letter-spacing: -1px;
+    }
+    
+    .contact-info h1 span {
+      color: var(--primary);
+    }
+
+    .contact-info p {
+      font-size: 1.1rem;
+      color: var(--text-gray);
+      line-height: 1.7;
+      margin-bottom: 3rem;
+      max-width: 500px;
+    }
+
+    .info-card {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .info-card-icon {
+      width: 60px;
+      height: 60px;
+      background: white;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      color: var(--primary);
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
+      border: 1px solid var(--card-border);
+    }
+
+    .info-card-text h4 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 0.3rem;
+    }
+
+    .info-card-text p {
+      margin: 0;
+      font-size: 1rem;
+      color: var(--text-gray);
+    }
+
+    /* Form */
+    .contact-form-container {
+      background: white;
+      padding: 3rem;
+      border-radius: 32px;
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.04);
+      border: 1px solid var(--card-border);
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 0.6rem;
+    }
+
+    .form-group input, .form-group textarea {
+      width: 100%;
+      padding: 1.2rem;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      font-size: 1rem;
+      color: var(--text-dark);
+      font-family: inherit;
+      transition: all 0.3s;
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 150px;
+    }
+
+    .form-group input:focus, .form-group textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      background: white;
+      box-shadow: 0 0 0 4px var(--primary-light);
+    }
+
+    .submit-btn {
+      width: 100%;
+      background: var(--primary);
+      color: white;
+      padding: 1.2rem;
+      border: none;
+      border-radius: 16px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
+    }
+
+    .submit-btn:hover {
+      background: var(--primary-hover);
+      transform: translateY(-2px);
+    }
+
+    @media (max-width: 992px) {
+      .contact-wrapper { grid-template-columns: 1fr; gap: 3rem; }
+      .contact-info { padding-top: 0; }
+    }
+
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .nav-wrapper { padding: 0.6rem 0.8rem; }
+      .nav-wrapper .btn-primary { padding: 0.4rem 0.8rem; font-size: 0.75rem; }
+      .logo img { height: 40px !important; }
+      
+      .contact-info h1 { font-size: 2.2rem; }
+      .contact-form-container { padding: 2rem 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <nav>
+      <div class="nav-wrapper">
+        <a href="index.html" class="logo">
+          <img src="images/logo_elite.png" alt="Logo Elite Energy" style="height: 65px; width: auto; object-fit: contain;">
+        </a>
+        <div class="nav-links">
+          <a href="index.html">Accueil</a>
+          <a href="index.html#about">À Propos</a>
+          <a href="index.html#features">Solutions</a>
+          <a href="contact.html" class="active">Contact</a>
+        </div>
+        <a href="login.html" class="btn-primary">Accès Dashboard <i class="fas fa-arrow-right"></i></a>
+      </div>
+    </nav>
+
+    <div class="contact-wrapper">
+      <div class="contact-info">
+        <h1>Contactez <span>l'équipe</span></h1>
+        <p>Une question sur notre infrastructure IoT ? Besoin d'un devis pour numériser votre réseau électrique ? Notre équipe technique vous répond dans les plus brefs délais.</p>
+        
+        <div class="info-card">
+          <div class="info-card-icon"><i class="fas fa-map-marker-alt"></i></div>
+          <div class="info-card-text">
+            <h4>Siège Social</h4>
+            <p>Kinshasa, République Démocratique du Congo</p>
+          </div>
+        </div>
+        
+        <div class="info-card">
+          <div class="info-card-icon"><i class="fas fa-envelope"></i></div>
+          <div class="info-card-text">
+            <h4>Email</h4>
+            <p>contact@elite-energy.cd</p>
+          </div>
+        </div>
+        
+        <div class="info-card">
+          <div class="info-card-icon"><i class="fas fa-phone-alt"></i></div>
+          <div class="info-card-text">
+            <h4>Téléphone</h4>
+            <p>+243 810 000 000</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="contact-form-container">
+        <form onsubmit="event.preventDefault(); alert('Votre message a été envoyé avec succès ! Nous vous recontacterons bientôt.');">
+          <div class="form-group">
+            <label>Nom complet</label>
+            <input type="text" placeholder="John Doe" required>
+          </div>
+          
+          <div class="form-group">
+            <label>Adresse Email</label>
+            <input type="email" placeholder="john@entreprise.com" required>
+          </div>
+          
+          <div class="form-group">
+            <label>Sujet</label>
+            <input type="text" placeholder="Déploiement de compteurs intelligents" required>
+          </div>
+          
+          <div class="form-group">
+            <label>Message</label>
+            <textarea placeholder="Comment pouvons-nous vous aider ?" required></textarea>
+          </div>
+          
+          <button type="submit" class="submit-btn">Envoyer le message <i class="fas fa-paper-plane" style="margin-left: 8px;"></i></button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

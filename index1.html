@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <script>
+    // Vérification de la connexion
+    if (sessionStorage.getItem("isAuthenticated") !== "true") {
+      window.location.href = "login.html";
+    }
+  </script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#0d6efd">
+  <title>ELITE1 - ELITE ENERGY SMART GRID RDC</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="style1.css" />
+
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-database-compat.js"></script>
+</head>
+<body>
+
+    <script>
+//document.addEventListener("contextmenu", function(e) {
+    //e.preventDefault();
+//});
+
+document.addEventListener("keydown", function(e) {
+
+    if (
+        (e.ctrlKey && e.key.toLowerCase() === "c") ||
+        (e.ctrlKey && e.key.toLowerCase() === "u") ||
+        (e.ctrlKey && e.key.toLowerCase() === "a") ||
+        (e.ctrlKey && e.key.toLowerCase() === "s")
+    ) {
+        e.preventDefault();
+    }
+
+});
+</script>
+
+  
+  <div class="main-wrapper">
+    <!-- HERO / HEADER SECTION -->
+    <div class="dashboard-header glass-effect">
+      <div class="header-left">
+        <div class="brand">
+          <img class="logo" src="images/logo_elite.png" alt="Logo ELITE ENERGY" style="width: auto; height: 75px; border-radius: 0; box-shadow: none;">
+          <div class="brand-text">
+            <h1>ELITE-ENERGY</h1>
+            <p class="subtitle" id="deviceSubtitle">SMART GRID RDC • APPAREIL: ELITE1</p>
+          </div>
+        </div>
+        <div class="status-container">
+          <p class="status-global" id="etatGlobal">Tous les départs sont désactivés</p>
+        </div>
+      </div>
+      
+      <div class="header-right global-command">
+        <div id="user-info-badge" style="background:rgba(255,255,255,0.1); border-radius:12px; padding:0.5rem 1rem; font-size:0.85rem; margin-right:1rem; display:flex; align-items:center; gap:0.5rem;">
+          <i class="fas fa-user-circle" style="font-size:1.2rem;"></i>
+          <div>
+            <div id="userDisplayName" style="font-weight:700;"></div>
+            <div id="userDisplayRole" style="opacity:0.7; font-size:0.75rem;"></div>
+          </div>
+        </div>
+        <button id="btnActiverTout" class="btn-glow btn-on" onclick="activerTousLesDeparts()"><i class="fas fa-power-off"></i> TOUT ACTIVER</button>
+        <button class="btn-glow btn-off" onclick="desactiverTousLesDeparts()"><i class="fas fa-power-off"></i> TOUT DÉSACTIVER</button>
+        <button class="btn-glow" onclick="logout()" style="background:rgba(239,68,68,0.2); border-color:#ef4444; margin-left:0.5rem;" title="Se déconnecter"><i class="fas fa-sign-out-alt"></i></button>
+      </div>
+    </div>
+
+    <h3 class="section-title">TABLEAU DE BORD DES 6 DÉPARTS</h3>
+
+    <div class="dashboard-grid">
+
+
+      <div class="glass-card depart-card" id="cardD1">
+        <div class="card-header">
+          <h4><i class="fas fa-bolt"></i> Départ 1</h4>
+          <span class="badge" id="etatD1">Désactivé</span>
+        </div>
+        <div class="card-body">
+          <div class="stat-box"><span class="label">Courant</span><span class="value" id="courantD1">0 A</span></div>
+          <div class="stat-box"><span class="label">Tension</span><span class="value" id="tensionD1">0 V</span></div>
+          <div class="stat-box"><span class="label">Puissance</span><span class="value" id="puissanceD1">0 W</span></div>
+          <div class="stat-box"><span class="label">Énergie</span><span class="value" id="energieD1">0 kWh</span></div>
+          <div class="stat-box"><span class="label">Fréq</span><span class="value" id="frequenceD1">0 Hz</span></div>
+          <div class="stat-box"><span class="label">Cosφ</span><span class="value" id="cosrhoD1">0</span></div>
+        </div>
+        <div class="card-footer">
+          <div class="ia-prediction" id="predictionD1">IA : en attente</div>
+          <div class="controls">
+            <button id="btnActiverD1" class="btn-sm btn-on" onclick="activerDepart(1)">ON</button>
+            <button class="btn-sm btn-off" onclick="desactiverDepart(1)">OFF</button>
+          </div>
+          <p style="display:none;"><span id="etatCommandeD1">Départ désactivé</span></p>
+        </div>
+      </div>
+
+      <div class="glass-card depart-card" id="cardD2">
+        <div class="card-header">
+          <h4><i class="fas fa-bolt"></i> Départ 2</h4>
+          <span class="badge" id="etatD2">Désactivé</span>
+        </div>
+        <div class="card-body">
+          <div class="stat-box"><span class="label">Courant</span><span class="value" id="courantD2">0 A</span></div>
+          <div class="stat-box"><span class="label">Tension</span><span class="value" id="tensionD2">0 V</span></div>
+          <div class="stat-box"><span class="label">Puissance</span><span class="value" id="puissanceD2">0 W</span></div>
+          <div class="stat-box"><span class="label">Énergie</span><span class="value" id="energieD2">0 kWh</span></div>
+          <div class="stat-box"><span class="label">Fréq</span><span class="value" id="frequenceD2">0 Hz</span></div>
+          <div class="stat-box"><span class="label">Cosφ</span><span class="value" id="cosrhoD2">0</span></div>
+        </div>
+        <div class="card-footer">
+          <div class="ia-prediction" id="predictionD2">IA : en attente</div>
+          <div class="controls">
+            <button id="btnActiverD2" class="btn-sm btn-on" onclick="activerDepart(2)">ON</button>
+            <button class="btn-sm btn-off" onclick="desactiverDepart(2)">OFF</button>
+          </div>
+          <p style="display:none;"><span id="etatCommandeD2">Départ désactivé</span></p>
+        </div>
+      </div>
+
+      <div class="glass-card depart-card" id="cardD3">
+        <div class="card-header">
+          <h4><i class="fas fa-bolt"></i> Départ 3</h4>
+          <span class="badge" id="etatD3">Désactivé</span>
+        </div>
+        <div class="card-body">
+          <div class="stat-box"><span class="label">Courant</span><span class="value" id="courantD3">0 A</span></div>
+          <div class="stat-box"><span class="label">Tension</span><span class="value" id="tensionD3">0 V</span></div>
+          <div class="stat-box"><span class="label">Puissance</span><span class="value" id="puissanceD3">0 W</span></div>
+          <div class="stat-box"><span class="label">Énergie</span><span class="value" id="energieD3">0 kWh</span></div>
+          <div class="stat-box"><span class="label">Fréq</span><span class="value" id="frequenceD3">0 Hz</span></div>
+          <div class="stat-box"><span class="label">Cosφ</span><span class="value" id="cosrhoD3">0</span></div>
+        </div>
+        <div class="card-footer">
+          <div class="ia-prediction" id="predictionD3">IA : en attente</div>
+          <div class="controls">
+            <button id="btnActiverD3" class="btn-sm btn-on" onclick="activerDepart(3)">ON</button>
+            <button class="btn-sm btn-off" onclick="desactiverDepart(3)">OFF</button>
+          </div>
+          <p style="display:none;"><span id="etatCommandeD3">Départ désactivé</span></p>
+        </div>
+      </div>
+
+      <div class="glass-card depart-card" id="cardD4">
+        <div class="card-header">
+          <h4><i class="fas fa-bolt"></i> Départ 4</h4>
+          <span class="badge" id="etatD4">Désactivé</span>
+        </div>
+        <div class="card-body">
+          <div class="stat-box"><span class="label">Courant</span><span class="value" id="courantD4">0 A</span></div>
+          <div class="stat-box"><span class="label">Tension</span><span class="value" id="tensionD4">0 V</span></div>
+          <div class="stat-box"><span class="label">Puissance</span><span class="value" id="puissanceD4">0 W</span></div>
+          <div class="stat-box"><span class="label">Énergie</span><span class="value" id="energieD4">0 kWh</span></div>
+          <div class="stat-box"><span class="label">Fréq</span><span class="value" id="frequenceD4">0 Hz</span></div>
+          <div class="stat-box"><span class="label">Cosφ</span><span class="value" id="cosrhoD4">0</span></div>
+        </div>
+        <div class="card-footer">
+          <div class="ia-prediction" id="predictionD4">IA : en attente</div>
+          <div class="controls">
+            <button id="btnActiverD4" class="btn-sm btn-on" onclick="activerDepart(4)">ON</button>
+            <button class="btn-sm btn-off" onclick="desactiverDepart(4)">OFF</button>
+          </div>
+          <p style="display:none;"><span id="etatCommandeD4">Départ désactivé</span></p>
+        </div>
+      </div>
+
+      <div class="glass-card depart-card" id="cardD5">
+        <div class="card-header">
+          <h4><i class="fas fa-bolt"></i> Départ 5</h4>
+          <span class="badge" id="etatD5">Désactivé</span>
+        </div>
+        <div class="card-body">
+          <div class="stat-box"><span class="label">Courant</span><span class="value" id="courantD5">0 A</span></div>
+          <div class="stat-box"><span class="label">Tension</span><span class="value" id="tensionD5">0 V</span></div>
+          <div class="stat-box"><span class="label">Puissance</span><span class="value" id="puissanceD5">0 W</span></div>
+          <div class="stat-box"><span class="label">Énergie</span><span class="value" id="energieD5">0 kWh</span></div>
+          <div class="stat-box"><span class="label">Fréq</span><span class="value" id="frequenceD5">0 Hz</span></div>
+          <div class="stat-box"><span class="label">Cosφ</span><span class="value" id="cosrhoD5">0</span></div>
+        </div>
+        <div class="card-footer">
+          <div class="ia-prediction" id="predictionD5">IA : en attente</div>
+          <div class="controls">
+            <button id="btnActiverD5" class="btn-sm btn-on" onclick="activerDepart(5)">ON</button>
+            <button class="btn-sm btn-off" onclick="desactiverDepart(5)">OFF</button>
+          </div>
+          <p style="display:none;"><span id="etatCommandeD5">Départ désactivé</span></p>
+        </div>
+      </div>
+
+      <div class="glass-card depart-card" id="cardD6">
+        <div class="card-header">
+          <h4><i class="fas fa-bolt"></i> Départ 6</h4>
+          <span class="badge" id="etatD6">Désactivé</span>
+        </div>
+        <div class="card-body">
+          <div class="stat-box"><span class="label">Courant</span><span class="value" id="courantD6">0 A</span></div>
+          <div class="stat-box"><span class="label">Tension</span><span class="value" id="tensionD6">0 V</span></div>
+          <div class="stat-box"><span class="label">Puissance</span><span class="value" id="puissanceD6">0 W</span></div>
+          <div class="stat-box"><span class="label">Énergie</span><span class="value" id="energieD6">0 kWh</span></div>
+          <div class="stat-box"><span class="label">Fréq</span><span class="value" id="frequenceD6">0 Hz</span></div>
+          <div class="stat-box"><span class="label">Cosφ</span><span class="value" id="cosrhoD6">0</span></div>
+        </div>
+        <div class="card-footer">
+          <div class="ia-prediction" id="predictionD6">IA : en attente</div>
+          <div class="controls">
+            <button id="btnActiverD6" class="btn-sm btn-on" onclick="activerDepart(6)">ON</button>
+            <button class="btn-sm btn-off" onclick="desactiverDepart(6)">OFF</button>
+          </div>
+          <p style="display:none;"><span id="etatCommandeD6">Départ désactivé</span></p>
+        </div>
+      </div>
+
+    </div> <!-- End dashboard-grid -->
+  </div> <!-- End main-wrapper -->
+
+  <div class="bottom-nav">
+    <div class="nav-item" id="adminNavIcon" style="display:none" title="Administration" onclick="window.location.href='admin.html'"><i class="fas fa-user-shield"></i></div>
+    <button id="voiceCommandButton" title="Commande vocale des départs" aria-label="Commande vocale des départs"><i class="fas fa-microphone"></i></button>
+    <button id="predictionVoiceButton" onclick="togglePredictionVocale()" title="Lancer ou arrêter la prédiction vocale" aria-label="Lancer ou arrêter la prédiction vocale">Prédiction vocale</button>
+
+    <div class="nav-item active"
+         onclick="window.location.href='index.html'">
+        <i class="fas fa-home"></i>
+    </div>
+
+    <div class="nav-item"
+         onclick="window.location.href='index1.html'">
+        <i class="fas fa-sliders-h"></i>
+    </div>
+
+    <div class="nav-item"
+         onclick="window.location.href='index2.html'">
+        <i class="fas fa-chart-line"></i>
+    </div>
+
+</div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyArEB0lH1tz3OOvrgKzL0cypYfMpQVgPm0",
+      authDomain: "maison-iot-b0dd6.firebaseapp.com",
+      databaseURL: "https://maison-iot-b0dd6-default-rtdb.firebaseio.com",
+      projectId: "maison-iot-b0dd6",
+      storageBucket: "maison-iot-b0dd6.appspot.com",
+      messagingSenderId: "838021465845",
+      appId: "1:838021465845:web:b277f02fd883b0c23627bc",
+      measurementId: "G-P697GH67M1"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    // --- DYNAMIQUE : Récupération depuis la session ---
+    const APPAREIL = sessionStorage.getItem("currentDevice") || "ELITE1";
+    const currentUser = sessionStorage.getItem("userFullName") || sessionStorage.getItem("currentUser") || "Utilisateur";
+    const currentRole = sessionStorage.getItem("userRole") || "Utilisateur";
+
+    // Affichage du nom de l'appareil et de l'utilisateur dans le header
+    document.getElementById("deviceSubtitle").textContent = `SMART GRID RDC • APPAREIL: ${APPAREIL}`;
+    document.getElementById("userDisplayName").textContent = currentUser;
+    document.getElementById("userDisplayRole").textContent = currentRole;
+
+    function logout() {
+      sessionStorage.clear();
+      window.location.href = "login.html";
+    }
+
+    const donneesRef = database.ref(`${APPAREIL}/Donnees${APPAREIL}`);
+    const commandeRef = database.ref(`${APPAREIL}/Commande${APPAREIL}`);
+
+    let modeSilencieux = false;
+    let dernierePrediction = 0;
+    let coupureTensionFaibleDejaAnnoncee = false;
+    const mesuresDepart = {};
+
+    function valeurNumerique(valeur, defaut = 0) {
+      const nombre = Number(valeur);
+      return Number.isFinite(nombre) ? nombre : defaut;
+    }
+
+
+    function predireEtatDepart(numero) {
+      const m = mesuresDepart[numero] || { courant: 0, tension: 0, puissance: 0, energie: 0, frequence: 0, cosrho: 0 };
+      const etatTexte = document.getElementById(`etatD${numero}`).textContent;
+      const predictionElem = document.getElementById(`predictionD${numero}`);
+      if (!predictionElem) return;
+
+      const donneesRecues = m.courant > 0 || m.tension > 0 || m.puissance > 0 || m.energie > 0;
+      let prediction = "IA : en attente";
+      let couleur = "#f5a506";
+
+      if (!donneesRecues) {
+        prediction = "IA : attente données";
+        couleur = "#f5a506";
+      } else if (etatTexte.includes("désactivé")) {
+        prediction = "IA : départ coupé";
+        couleur = "#5C0011";
+      } else if (m.tension > 0 && m.tension < 140) {
+        prediction = "IA : tension faible, risque";
+        couleur = "#dc3545";
+      } else if (m.tension > 0 && (m.tension < 200 || m.tension > 250)) {
+        prediction = "IA : tension anormale";
+        couleur = "#dc3545";
+      } else if (m.courant > 100) {
+        prediction = "IA : surcharge courant";
+        couleur = "#dc3545";
+      } else if (m.puissance > 25000) {
+        prediction = "IA : puissance élevée";
+        couleur = "#dc3545";
+      } else {
+        prediction = "IA : fonctionnement normal";
+        couleur = "#1408f4";
+      }
+
+      predictionElem.textContent = prediction;
+      predictionElem.style.color = couleur;
+    }
+
+    function parler(message) {
+      if (modeSilencieux) return;
+      if (!window.speechSynthesis) return;
+
+      const voix = new SpeechSynthesisUtterance(message);
+      voix.lang = "fr-FR";
+      voix.rate = 0.95;
+      speechSynthesis.speak(voix);
+    }
+
+    // Initialise seulement les chemins qui n'existent pas encore.
+    // Important : cela n'écrase pas les vraies valeurs envoyées par l'ESP32.
+    function initialiserFirebaseSansEcraserESP32() {
+      for (let i = 1; i <= 6; i++) {
+        donneesRef.child(`Depart${i}`).once("value").then(snapshot => {
+          if (!snapshot.exists()) {
+            donneesRef.child(`Depart${i}`).set({
+              [`CourantD${i}`]: 0,
+              [`TensionD${i}`]: 0,
+              [`PuissanceD${i}`]: 0,
+              [`EnergieD${i}`]: 0,
+              [`FrequenceD${i}`]: 0,
+              [`CosRhoD${i}`]: 0,
+              Historique: {
+                DerniereMiseAJour: "En attente ESP32"
+              }
+            });
+          }
+        });
+
+        commandeRef.child(`Commande${i}`).once("value").then(snapshot => {
+          if (!snapshot.exists()) {
+            commandeRef.child(`Commande${i}`).set(0);
+          }
+        });
+      }
+    }
+
+    function activerDepart(numero) {
+      commandeRef.child(`Commande${numero}`).set(1);
+      if (!modeSilencieux) parler(`Le départ ${numero} est activé`);
+
+      // Aucune simulation ici : courant, tension, puissance et énergie restent à zéro
+      // jusqu'à l'arrivée des données réelles envoyées par l'ESP32.
+    }
+
+    function desactiverDepart(numero) {
+  commandeRef.child(`Commande${numero}`).set(0);
+
+  // Remet uniquement le courant à zéro
+  donneesRef.child(`Depart${numero}`).update({
+    [`CourantD${numero}`]: 0
+  });
+
+  if (!modeSilencieux) {
+    parler(`Le départ ${numero} est désactivé`);
+  }
+}
+
+    function activerTousLesDeparts() {
+      modeSilencieux = true;
+      const updates = {};
+      for (let i = 1; i <= 6; i++) updates[`Commande${i}`] = 1;
+      commandeRef.update(updates).then(() => {
+        modeSilencieux = false;
+        parler("Tous les départs sont activés");
+      });
+    }
+
+    function desactiverTousLesDeparts(annoncer = true) {
+  modeSilencieux = true;
+  const updates = {};
+  for (let i = 1; i <= 6; i++) {
+    updates[`Commande${i}`] = 0;
+    // Remet uniquement le courant à zéro
+    donneesRef.child(`Depart${i}`).update({
+      [`CourantD${i}`]: 0
+    });
+  }
+  commandeRef.update(updates).then(() => {
+    modeSilencieux = false;
+    if (annoncer) {
+      parler("Tous les départs sont désactivés");
+    }
+  });
+}
+
+    function lireDonneesDepart(numero) {
+      donneesRef.child(`Depart${numero}`).on("value", snapshot => {
+        const data = snapshot.val() || {};
+
+        const courant = valeurNumerique(data[`CourantD${numero}`]);
+        const tension = valeurNumerique(data[`TensionD${numero}`]);
+        const puissance = valeurNumerique(data[`PuissanceD${numero}`]);
+        const energie = valeurNumerique(data[`EnergieD${numero}`]);
+        const frequence = valeurNumerique(data[`FrequenceD${numero}`]);
+        const cosrho = valeurNumerique(data[`CosRhoD${numero}`]);
+
+        mesuresDepart[numero] = { courant, tension, puissance, energie, frequence, cosrho };
+
+        document.getElementById(`courantD${numero}`).textContent = courant.toFixed(2) + " A";
+        document.getElementById(`tensionD${numero}`).textContent = tension.toFixed(2) + " V";
+        document.getElementById(`puissanceD${numero}`).textContent = puissance.toFixed(2) + " W";
+        document.getElementById(`energieD${numero}`).textContent = energie.toFixed(3) + " kWh";
+        document.getElementById(`frequenceD${numero}`).textContent = frequence.toFixed(2) + " Hz";
+        document.getElementById(`cosrhoD${numero}`).textContent = cosrho.toFixed(2);
+        predireEtatDepart(numero);
+      });
+    }
+
+    function ecouterCommandeDepart(numero) {
+      commandeRef.child(`Commande${numero}`).on("value", snapshot => {
+        const etat = valeurNumerique(snapshot.val());
+        const btn = document.getElementById(`btnActiverD${numero}`);
+        const texteCommande = document.getElementById(`etatCommandeD${numero}`);
+        const texteTableau = document.getElementById(`etatD${numero}`);
+
+        if (etat === 1) {
+          btn.classList.add("active");
+          texteCommande.textContent = "Départ activé";
+          texteTableau.textContent = "Départ activé";
+          texteCommande.style.color = "blue";
+          texteTableau.style.color = "blue";
+        } else {
+          btn.classList.remove("active");
+          texteCommande.textContent = "Départ désactivé";
+          texteTableau.textContent = "Départ désactivé";
+          texteCommande.style.color = "crimson";
+          texteTableau.style.color = "crimson";
+        }
+
+        predireEtatDepart(numero);
+        verifierEtatGlobal();
+      });
+    }
+
+    function verifierEtatGlobal() {
+      commandeRef.once("value").then(snapshot => {
+        const data = snapshot.val() || {};
+        let actifs = 0;
+
+        for (let i = 1; i <= 6; i++) {
+          if (valeurNumerique(data[`Commande${i}`]) === 1) actifs++;
+        }
+
+        const etatGlobal = document.getElementById("etatGlobal");
+        const btnActiverTout = document.getElementById("btnActiverTout");
+
+        if (actifs === 6) {
+          etatGlobal.textContent = "Tous les départs sont activés";
+          etatGlobal.style.color = "blue";
+          btnActiverTout.classList.add("active");
+        } else if (actifs === 0) {
+          etatGlobal.textContent = "Tous les départs sont désactivés";
+          etatGlobal.style.color = "red";
+          btnActiverTout.classList.remove("active");
+        } else {
+          etatGlobal.textContent = "Tous les départs ne sont pas activés";
+          etatGlobal.style.color = "green";
+          btnActiverTout.classList.remove("active");
+        }
+      });
+    }
+
+    function obtenirEtatCommandes() {
+      return commandeRef.once("value").then(snapshot => {
+        const data = snapshot.val() || {};
+        const etats = {};
+        for (let i = 1; i <= 6; i++) {
+          etats[`Départ ${i}`] = valeurNumerique(data[`Commande${i}`]);
+        }
+        return etats;
+      });
+    }
+
+    function annoncerEtatDesDeparts() {
+      obtenirEtatCommandes().then(etats => {
+        const actifs = Object.entries(etats).filter(([_, v]) => v === 1).map(([nom]) => nom);
+        const desactives = Object.entries(etats).filter(([_, v]) => v === 0).map(([nom]) => nom);
+
+        if (actifs.length === 0) {
+          parler("Tous les départs sont désactivés.");
+        } else if (actifs.length === 6) {
+          parler("Tous les départs sont activés.");
+        } else {
+          parler("Départs activés : " + actifs.join(", ") + ". Départs désactivés : " + desactives.join(", ") + ".");
+        }
+      });
+    }
+
+    function annoncerMesuresEtPrediction(force = false) {
+      if (!force) {
+        const predictionEligibleAt = Number(sessionStorage.getItem("voicePredictionsEligibleAt") || 0);
+        if (!predictionEligibleAt) {
+          sessionStorage.setItem("voicePredictionsEligibleAt", String(Date.now() + 3600000));
+          return;
+        }
+        if (Date.now() < predictionEligibleAt) return;
+      }
+      if (!force && Date.now() - dernierePrediction < 3600000) return;
+      dernierePrediction = Date.now();
+
+      let totalCourant = 0;
+      let totalPuissance = 0;
+      let totalEnergie = 0;
+      let departsAvecDonnees = 0;
+      let tension = 0;
+      let frequence = 0;
+      let cosrho = 0;
+      const anomalies = [];
+
+      for (let i = 1; i <= 6; i++) {
+        const m = mesuresDepart[i] || { courant: 0, tension: 0, puissance: 0, energie: 0, frequence: 0, cosrho: 0 };
+
+        if (tension === 0 && m.tension > 0) {
+    tension = m.tension;
+}
+
+        if (frequence === 0 && m.frequence > 0) {
+          frequence = m.frequence;
+        }
+
+        if (cosrho === 0 && m.cosrho > 0) {
+          cosrho = m.cosrho;
+        }
+
+        totalCourant += m.courant;
+        totalPuissance += m.puissance;
+        totalEnergie += m.energie;
+
+        const donneesReellesRecues = m.courant > 0 || m.tension > 0 || m.puissance > 0 || m.energie > 0;
+
+        if (donneesReellesRecues) {
+          departsAvecDonnees++;
+
+          if (m.courant > 100) anomalies.push(`le courant est anormal sur le départ ${i}`);
+          if (m.tension > 0 && (m.tension < 200 || m.tension > 250)) anomalies.push(`la tension est hors de la plage normale sur le départ ${i}`);
+          if (m.puissance > 25000) anomalies.push(`la puissance dépasse 25 000 watts sur le départ ${i}`);
+        }
+      }
+
+      //if (departsAvecDonnees === 0) {
+        //parler("Analyse de la prédiction I A : Les données en  réelle n'est encore reçue. Le courant,. Le système est en attente de connexion de l'appareil.");
+        //annoncerEtatDesDeparts();
+        //return;
+      //}
+
+      let texteMesures =
+        "Voici les mesures actuelles de la prédiction de l'état du système : " +
+        `Le courant total est de ${totalCourant.toFixed(2)} Ampeires, ` +
+        `La tension est de ${tension.toFixed(2)} Volts, ` +
+        `la puissance totale est de ${totalPuissance.toFixed(2)} watts, ` +
+        `l'énergie totale est de ${totalEnergie.toFixed(3)} kilowatt heire, ` +
+        `la fréquence est de ${frequence.toFixed(2)} hertz, ` +
+        `et le Facteur de puissance est de ${cosrho.toFixed(2)}. `;
+
+      if (anomalies.length === 0) {
+        texteMesures += "Analyse de la prédiction I A : toutes les données reçues sont normales. Le système fonctionne correctement.";
+      } else {
+        texteMesures += "Attention. Analyse de la prédiction I A : des anomalies ont été détectées après analyse des données. " + anomalies.join(", ") + ".";
+      }
+
+      parler(texteMesures);
+      annoncerEtatDesDeparts();
+    }
+
+    function togglePredictionVocale() {
+      if (!window.speechSynthesis) return;
+      if (speechSynthesis.speaking || speechSynthesis.pending) {
+        speechSynthesis.cancel();
+        return;
+      }
+      annoncerMesuresEtPrediction(true);
+    }
+
+    // Même automatisme de protection : si une tension réelle reçue est faible,
+    // tous les départs sont automatiquement désactivés.
+    function surveillerTensionFaible() {
+      let tensionFaibleDetectee = false;
+
+      for (let i = 1; i <= 6; i++) {
+        const tension = (mesuresDepart[i] || {}).tension || 0;
+        if (tension > 0 && tension < 100) {
+          tensionFaibleDetectee = true;
+          break;
+        }
+      }
+
+      if (tensionFaibleDetectee) {
+        desactiverTousLesDeparts(false);
+        if (!coupureTensionFaibleDejaAnnoncee) {
+          coupureTensionFaibleDejaAnnoncee = true;
+          parler("Attention, tension faible détectée. Tous les départs sont automatiquement désactivés pour protéger le système.");
+        }
+      } else {
+        coupureTensionFaibleDejaAnnoncee = false;
+      }
+    }
+
+    initialiserFirebaseSansEcraserESP32();
+
+    for (let i = 1; i <= 6; i++) {
+      mesuresDepart[i] = { courant: 0, tension: 0, puissance: 0, energie: 0, frequence: 0, cosrho: 0 };
+      lireDonneesDepart(i);
+      ecouterCommandeDepart(i);
+    }
+
+    const predictionEligibleAt = Number(sessionStorage.getItem("voicePredictionsEligibleAt") || (Date.now() + 3600000));
+    if (!sessionStorage.getItem("voicePredictionsEligibleAt")) sessionStorage.setItem("voicePredictionsEligibleAt", String(predictionEligibleAt));
+    setTimeout(() => {
+      annoncerMesuresEtPrediction();
+      setInterval(annoncerMesuresEtPrediction, 3600000);
+    }, Math.max(0, predictionEligibleAt - Date.now()));
+    setInterval(surveillerTensionFaible, 5000);
+
+    window.activerDepart = activerDepart;
+    window.desactiverDepart = desactiverDepart;
+    window.activerTousLesDeparts = activerTousLesDeparts;
+    window.desactiverTousLesDeparts = desactiverTousLesDeparts;
+  </script>
+  <script src="live-features.js"></script>
+  <script src="device-labels.js"></script>
+</body>
+</html>

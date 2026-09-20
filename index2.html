@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard ELITE1 - 6 Départs</title>
+
+  <script>
+    // Vérification de la connexion
+    if (sessionStorage.getItem("isAuthenticated") !== "true") {
+      window.location.href = "login.html";
+    }
+  </script>
+
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#0d6efd">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="style2.css" />
+  
+  <!-- Ajout AOS pour l'animation au scroll simple -->
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-database-compat.js"></script>
+</head>
+<body>
+  <div class="dashboard">
+    <header class="header-container" data-aos="fade-down" data-aos-duration="600">
+      <img src="images/logo_elite.png" alt="Logo ELITE ENERGY" class="profile" style="width: auto; height: 80px; border-radius: 0; box-shadow: none;">
+      <div class="header-text">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <h1>ELITE-ENERGY SMART GRID RDC</h1>
+          <span style="background: rgba(16, 185, 129, 0.1); color: #10b981; padding: 4px 10px; border-radius: 50px; font-size: 11px; font-weight: 800; display: inline-flex; align-items: center; gap: 6px; border: 1px solid rgba(16, 185, 129, 0.2);">
+            <span style="width: 6px; height: 6px; background: #10b981; border-radius: 50%; box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.3);"></span> LIVE
+          </span>
+        </div>
+        <h2>Dashboard IoT/IA - Appareil ELITE1<br>
+          <span class="hide-on-mobile" style="color:var(--primary);">Analyse, consommation et historique des 6 départs</span>
+        </h2>
+      </div>
+    </header>
+
+    <p class="info-color" data-aos="fade-right">Analyse, consommation et historique des 6 départs ELITE1</p>
+
+    <section class="main-grid">
+      <div class="card total-energy" data-aos="zoom-in" data-aos-duration="500">
+        <h3><i class="fas fa-bolt" style="color: var(--warning); margin-right: 8px;"></i> Consommation journalière</h3>
+        <p class="value" id="energieTotaleJour">0.000 <span style="font-size: 1rem; color: var(--text-gray);">kWh</span></p>
+        <button class="btn"><i class="fas fa-chart-pie"></i> Énergie totale ELITE1</button>
+      </div>
+
+      <div class="card consumption" data-aos="fade-up" data-aos-delay="100">
+        <h3><i class="fas fa-clock" style="color: var(--primary); margin-right: 8px;"></i> Consommation par intervalle</h3>
+        <p id="pourcentageConso" style="font-size: 2rem; font-weight: 800; color: var(--text-dark); margin: 0 0 10px 0;">0 %</p>
+        <div class="chart-wrapper"><canvas id="barChartGlobal"></canvas></div>
+        <p class="bottom">Énergie totale consommée par tranche horaire</p>
+      </div>
+
+      <div class="card line" data-aos="fade-up" data-aos-delay="200">
+        <h3><i class="fas fa-wave-square" style="color: var(--primary); margin-right: 8px;"></i> Courbe consommation totale</h3>
+        <div class="chart-wrapper"><canvas id="lineChartGlobal"></canvas></div>
+        <p class="bottom">Énergie totale ELITE1 en temps réel</p>
+      </div>
+
+      <div class="card gauges" data-aos="fade-up" data-aos-delay="300">
+        <div class="gauge">
+          <h4 style="display: flex; align-items: center; justify-content: space-between;">PUISSANCE TOTALE <i class="fas fa-plug" style="color: var(--primary);"></i></h4>
+          <p id="puissanceTotale">0.00 W</p>
+        </div>
+        <div class="gauge">
+          <h4 style="display: flex; align-items: center; justify-content: space-between;">COURANT TOTAL <i class="fas fa-bolt" style="color: var(--warning);"></i></h4>
+          <p id="courantTotal">0.00 A</p>
+        </div>
+        <div class="gauge">
+          <h4 style="display: flex; align-items: center; justify-content: space-between;">TENSION UNIQUE <i class="fas fa-charging-station" style="color: var(--success);"></i></h4>
+          <p id="tensionUnique">0.00 V</p>
+        </div>
+      </div>
+
+      <div class="card bars">
+        <h4 id="headerHistoriqueGlobal">Historique global des consommations</h4>
+        <div class="chart-wrapper"><canvas id="historiqueGlobalChart"></canvas></div>
+      </div>
+
+      <div class="card power-curve">
+        <h4>Puissance totale vs temps</h4>
+        <div class="chart-wrapper"><canvas id="powerGlobalChart"></canvas></div>
+      </div>
+
+      <div class="card line-data">
+        <h3>Données globales ELITE1</h3>
+        <ul>
+          <li id="etatGlobalDeparts">État : en attente</li>
+          <li id="departActifs">Départs activés : 0/6</li>
+          <li id="donneesRecues">Données ESP32 : en attente</li>
+        </ul>
+      </div>
+
+      <div class="card stats">
+        <div><p id="analyseIAEtat">IA : en attente des données</p></div>
+        <div><p id="alerteSysteme">Système : normal</p></div>
+      </div>
+    </section>
+
+    <h3 class="section-title">Tableau de bord détaillé par départ</h3>
+
+    <section class="depart-grid">
+      <div class="depart-card" id="cardD1">
+        <h3 style="display: flex; align-items: center; gap: 8px;"><i class="fas fa-bolt" style="color: var(--primary);"></i> Départ 1</h3>
+        <p id="etatD1">Départ désactivé</p>
+        <ul>
+          <li id="courantD1">Courant : 0.00 A</li>
+          <li id="tensionD1">Tension : 0.00 V</li>
+          <li id="puissanceD1">Puissance : 0.00 W</li>
+          <li id="energieD1">Énergie : 0.000 kWh</li>
+          <li id="frequenceD1">Fréquence : 0.00 Hz</li>
+          <li id="cosrhoD1">cosρ : 0.00</li>
+        </ul>
+        <div class="chart-wrapper"><canvas id="chartD1"></canvas></div>
+        <p class="bottom">Courbe de puissance du départ 1</p>
+      </div>
+
+      <div class="depart-card" id="cardD2">
+        <h3 style="display: flex; align-items: center; gap: 8px;"><i class="fas fa-bolt" style="color: var(--primary);"></i> Départ 2</h3>
+        <p id="etatD2">Départ désactivé</p>
+        <ul>
+          <li id="courantD2">Courant : 0.00 A</li>
+          <li id="tensionD2">Tension : 0.00 V</li>
+          <li id="puissanceD2">Puissance : 0.00 W</li>
+          <li id="energieD2">Énergie : 0.000 kWh</li>
+          <li id="frequenceD2">Fréquence : 0.00 Hz</li>
+          <li id="cosrhoD2">cosρ : 0.00</li>
+        </ul>
+        <div class="chart-wrapper"><canvas id="chartD2"></canvas></div>
+        <p class="bottom">Courbe de puissance du départ 2</p>
+      </div>
+
+      <div class="depart-card" id="cardD3">
+        <h3 style="display: flex; align-items: center; gap: 8px;"><i class="fas fa-bolt" style="color: var(--primary);"></i> Départ 3</h3>
+        <p id="etatD3">Départ désactivé</p>
+        <ul>
+          <li id="courantD3">Courant : 0.00 A</li>
+          <li id="tensionD3">Tension : 0.00 V</li>
+          <li id="puissanceD3">Puissance : 0.00 W</li>
+          <li id="energieD3">Énergie : 0.000 kWh</li>
+          <li id="frequenceD3">Fréquence : 0.00 Hz</li>
+          <li id="cosrhoD3">cosρ : 0.00</li>
+        </ul>
+        <div class="chart-wrapper"><canvas id="chartD3"></canvas></div>
+        <p class="bottom">Courbe de puissance du départ 3</p>
+      </div>
+
+      <div class="depart-card" id="cardD4">
+        <h3 style="display: flex; align-items: center; gap: 8px;"><i class="fas fa-bolt" style="color: var(--primary);"></i> Départ 4</h3>
+        <p id="etatD4">Départ désactivé</p>
+        <ul>
+          <li id="courantD4">Courant : 0.00 A</li>
+          <li id="tensionD4">Tension : 0.00 V</li>
+          <li id="puissanceD4">Puissance : 0.00 W</li>
+          <li id="energieD4">Énergie : 0.000 kWh</li>
+          <li id="frequenceD4">Fréquence : 0.00 Hz</li>
+          <li id="cosrhoD4">cosρ : 0.00</li>
+        </ul>
+        <div class="chart-wrapper"><canvas id="chartD4"></canvas></div>
+        <p class="bottom">Courbe de puissance du départ 4</p>
+      </div>
+
+      <div class="depart-card" id="cardD5">
+        <h3 style="display: flex; align-items: center; gap: 8px;"><i class="fas fa-bolt" style="color: var(--primary);"></i> Départ 5</h3>
+        <p id="etatD5">Départ désactivé</p>
+        <ul>
+          <li id="courantD5">Courant : 0.00 A</li>
+          <li id="tensionD5">Tension : 0.00 V</li>
+          <li id="puissanceD5">Puissance : 0.00 W</li>
+          <li id="energieD5">Énergie : 0.000 kWh</li>
+          <li id="frequenceD5">Fréquence : 0.00 Hz</li>
+          <li id="cosrhoD5">cosρ : 0.00</li>
+        </ul>
+        <div class="chart-wrapper"><canvas id="chartD5"></canvas></div>
+        <p class="bottom">Courbe de puissance du départ 5</p>
+      </div>
+
+      <div class="depart-card" id="cardD6">
+        <h3 style="display: flex; align-items: center; gap: 8px;"><i class="fas fa-bolt" style="color: var(--primary);"></i> Départ 6</h3>
+        <p id="etatD6">Départ désactivé</p>
+        <ul>
+          <li id="courantD6">Courant : 0.00 A</li>
+          <li id="tensionD6">Tension : 0.00 V</li>
+          <li id="puissanceD6">Puissance : 0.00 W</li>
+          <li id="energieD6">Énergie : 0.000 kWh</li>
+          <li id="frequenceD6">Fréquence : 0.00 Hz</li>
+          <li id="cosrhoD6">cosρ : 0.00</li>
+        </ul>
+        <div class="chart-wrapper"><canvas id="chartD6"></canvas></div>
+        <p class="bottom">Courbe de puissance du départ 6</p>
+      </div>
+
+      <div class="history-card" id="historyCard">
+        <div class="history-header">
+          <h3>Historique des données de tous les départs</h3>
+          <p>Faites défiler uniquement ce tableau pour voir les anciennes valeurs.</p>
+          <div id="month-filters" style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 15px;">
+            <!-- Les boutons de mois s'afficheront ici -->
+          </div>
+        </div>
+
+        <div class="history-table-scroll">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>Date / Heure</th>
+                <th>Départ</th>
+                <th>Courant</th>
+                <th>Tension</th>
+                <th>Puissance</th>
+                <th>Énergie</th>
+                <th>Fréquence</th>
+                <th>cosρ</th>
+                <th>État</th>
+              </tr>
+            </thead>
+            <tbody id="historiqueDonneesBody">
+              <tr>
+                <td colspan="9">En attente des données historiques...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="bottom-nav">
+    <div class="nav-item" id="adminNavIcon" style="display:none" title="Administration" onclick="window.location.href='admin.html'"><i class="fas fa-user-shield"></i></div>
+    <button id="voiceCommandButton" title="Commande vocale des départs" aria-label="Commande vocale des départs"><i class="fas fa-microphone"></i></button>
+    <button id="predictionVoiceButton" onclick="togglePredictionVocale()" title="Lancer ou arrêter la prédiction vocale" aria-label="Lancer ou arrêter la prédiction vocale">Prédiction vocale</button>
+    <div class="nav-item" onclick="window.location.href='index.html'"><i class="fas fa-home"></i></div>
+    <div class="nav-item" onclick="window.location.href='index1.html'"><i class="fas fa-sliders-h"></i></div>
+    <div class="nav-item active" onclick="window.location.href='index2.html'"><i class="fas fa-chart-line"></i></div>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyArEB0lH1tz3OOvrgKzL0cypYfMpQVgPm0",
+      authDomain: "maison-iot-b0dd6.firebaseapp.com",
+      databaseURL: "https://maison-iot-b0dd6-default-rtdb.firebaseio.com",
+      projectId: "maison-iot-b0dd6",
+      storageBucket: "maison-iot-b0dd6.appspot.com",
+      messagingSenderId: "838021465845",
+      appId: "1:838021465845:web:b277f02fd883b0c23627bc",
+      measurementId: "G-P697GH67M1"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    // --- DYNAMIQUE : Récupération depuis la session ---
+    const APPAREIL = sessionStorage.getItem("currentDevice") || "ELITE1";
+    const currentUser = sessionStorage.getItem("userFullName") || sessionStorage.getItem("currentUser") || "Utilisateur";
+    const currentRole = sessionStorage.getItem("userRole") || "Utilisateur";
+
+    function logout() {
+      sessionStorage.clear();
+      window.location.href = "login.html";
+    }
+
+    const donneesRef = database.ref(`${APPAREIL}/Donnees${APPAREIL}`);
+    const commandeRef = database.ref(`${APPAREIL}/Commande${APPAREIL}`);
+    const dashboardRef = database.ref(`${APPAREIL}/Dashboard${APPAREIL}`);
+
+    const mesuresDepart = {};
+    const etatsCommande = {};
+    const consommationHoraire = [0, 0, 0, 0, 0, 0];
+    const labelsHoraire = ['00h-04h', '04h-08h', '08h-12h', '12h-16h', '16h-20h', '20h-00h'];
+    let dernierePrediction = 0;
+    let consommationTotalePrecedente = 0;
+    let dateCourante = new Date().toDateString();
+    let historiqueGlobal = [];
+    let historiqueDonnees = [];
+    const derniereSignatureHistorique = {};
+    let annonceTensionFaible = false;
+
+    function valeurNumerique(valeur, defaut = 0) {
+      const nombre = Number(valeur);
+      return Number.isFinite(nombre) ? nombre : defaut;
+    }
+
+    function obtenirDateLocaleISO(date = new Date()) {
+      const annee = date.getFullYear();
+      const mois = String(date.getMonth() + 1).padStart(2, "0");
+      const jour = String(date.getDate()).padStart(2, "0");
+      return `${annee}-${mois}-${jour}`;
+    }
+
+    function parler(message) {
+  if (!window.speechSynthesis) return;
+
+  speechSynthesis.cancel();
+
+  const voix = new SpeechSynthesisUtterance(message);
+  voix.lang = "fr-FR";
+  voix.rate = 0.95;
+  speechSynthesis.speak(voix);
+}
+
+    function creerLineChart(canvasId, label) {
+      const ctx = document.getElementById(canvasId).getContext("2d");
+      const gradient = ctx.createLinearGradient(0, 0, 0, 150);
+      gradient.addColorStop(0, 'rgba(59, 130, 246, 0.4)');
+      gradient.addColorStop(1, 'rgba(59, 130, 246, 0.0)');
+
+      return new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: [],
+          datasets: [{
+            label: label,
+            data: [],
+            tension: 0.4, // Smooth curves
+            fill: true,
+            backgroundColor: gradient,
+            borderColor: '#3b82f6',
+            borderWidth: 2,
+            pointBackgroundColor: '#ffffff',
+            pointBorderColor: '#3b82f6',
+            pointBorderWidth: 2,
+            pointRadius: 0,
+            pointHoverRadius: 5
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { 
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: 'rgba(15, 23, 42, 0.9)',
+              titleFont: { size: 13, family: "'Plus Jakarta Sans', sans-serif" },
+              bodyFont: { size: 13, weight: 'bold', family: "'Plus Jakarta Sans', sans-serif" },
+              padding: 10,
+              cornerRadius: 8
+            }
+          },
+          scales: { 
+            y: { 
+              beginAtZero: true,
+              grid: { color: 'rgba(226, 232, 240, 0.5)', borderDash: [4, 4], drawBorder: false },
+              ticks: { font: { family: "'Plus Jakarta Sans', sans-serif", size: 10 }, color: '#94a3b8' }
+            },
+            x: {
+              grid: { display: false, drawBorder: false },
+              ticks: { display: false } // Hide x-axis labels to look cleaner
+            }
+          },
+          interaction: { mode: 'index', intersect: false }
+        }
+      });
+    }
+
+    function creerBarChart(canvasId, labels, data, label) {
+      const ctx = document.getElementById(canvasId).getContext("2d");
+      const gradient = ctx.createLinearGradient(0, 0, 0, 150);
+      gradient.addColorStop(0, '#3b82f6');
+      gradient.addColorStop(1, '#60a5fa');
+
+      return new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{ 
+            label: label, 
+            data: data,
+            backgroundColor: gradient,
+            borderRadius: 6,
+            borderSkipped: false
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { 
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: 'rgba(15, 23, 42, 0.9)',
+              cornerRadius: 8
+            }
+          },
+          scales: { 
+            y: { 
+              beginAtZero: true,
+              grid: { color: 'rgba(226, 232, 240, 0.5)', borderDash: [4, 4], drawBorder: false },
+              ticks: { font: { family: "'Plus Jakarta Sans', sans-serif", size: 10 }, color: '#94a3b8' }
+            },
+            x: {
+              grid: { display: false, drawBorder: false },
+              ticks: { font: { family: "'Plus Jakarta Sans', sans-serif", size: 10 }, color: '#64748b' }
+            }
+          }
+        }
+      });
+    }
+
+    const barChartGlobal = creerBarChart("barChartGlobal", labelsHoraire, consommationHoraire, "Énergie par tranche horaire");
+    const lineChartGlobal = creerLineChart("lineChartGlobal", "Consommation totale kWh");
+    const powerGlobalChart = creerLineChart("powerGlobalChart", "Puissance totale W");
+    const historiqueGlobalChart = creerBarChart("historiqueGlobalChart", [], [], "Historique global kWh");
+
+    const chartsDepart = {};
+    for (let i = 1; i <= 6; i++) {
+      mesuresDepart[i] = { courant: 0, tension: 0, puissance: 0, energie: 0, frequence: 0, cosrho: 0 };
+      etatsCommande[i] = 0;
+      chartsDepart[i] = creerLineChart(`chartD${i}`, `Puissance départ ${i}`);
+    }
+
+    function ajouterPoint(chart, valeur) {
+      const heure = new Date().toLocaleTimeString();
+      if (chart.data.labels.length >= 30) {
+        chart.data.labels.shift();
+        chart.data.datasets[0].data.shift();
+      }
+      chart.data.labels.push(heure);
+      chart.data.datasets[0].data.push(Number(valeur).toFixed(2));
+      chart.update();
+    }
+
+    function ecouterDonneesDepart(numero) {
+      donneesRef.child(`Depart${numero}`).on("value", snapshot => {
+        const data = snapshot.val() || {};
+
+        const courant = valeurNumerique(data[`CourantD${numero}`]);
+        const tension = valeurNumerique(data[`TensionD${numero}`]);
+        const puissance = valeurNumerique(data[`PuissanceD${numero}`]);
+        const energie = valeurNumerique(data[`EnergieD${numero}`]);
+        const frequence = valeurNumerique(data[`FrequenceD${numero}`]);
+        const cosrho = valeurNumerique(data[`CosRhoD${numero}`]);
+
+        mesuresDepart[numero] = { courant, tension, puissance, energie, frequence, cosrho };
+
+        document.getElementById(`courantD${numero}`).textContent = `Courant : ${courant.toFixed(2)} A`;
+        document.getElementById(`tensionD${numero}`).textContent = `Tension : ${tension.toFixed(2)} V`;
+        document.getElementById(`puissanceD${numero}`).textContent = `Puissance : ${puissance.toFixed(2)} W`;
+        document.getElementById(`energieD${numero}`).textContent = `Énergie : ${energie.toFixed(3)} kWh`;
+        document.getElementById(`frequenceD${numero}`).textContent = `Fréquence : ${frequence.toFixed(2)} Hz`;
+        document.getElementById(`cosrhoD${numero}`).textContent = `cosρ : ${cosrho.toFixed(2)}`;
+
+        ajouterPoint(chartsDepart[numero], puissance);
+        ajouterLigneHistoriqueDonnees(numero, courant, tension, puissance, energie, frequence, cosrho);
+        mettreAJourDashboardGlobal();
+      });
+    }
+
+    function ecouterCommandeDepart(numero) {
+      commandeRef.child(`Commande${numero}`).on("value", snapshot => {
+        const etat = valeurNumerique(snapshot.val());
+        etatsCommande[numero] = etat;
+        const etatElement = document.getElementById(`etatD${numero}`);
+        const card = document.getElementById(`cardD${numero}`);
+
+        if (etat === 1) {
+          etatElement.textContent = "Départ activé";
+          etatElement.style.color = "blue";
+          card.classList.add("active-depart");
+        } else {
+          etatElement.textContent = "Départ désactivé";
+          etatElement.style.color =  "#5C0011";
+          card.classList.remove("active-depart");
+        }
+
+        mettreAJourEtatGlobal();
+        mettreAJourHistoriqueEtatDepart(numero);
+      });
+    }
+
+    function mettreAJourEtatGlobal() {
+      let actifs = 0;
+      for (let i = 1; i <= 6; i++) {
+        if (etatsCommande[i] === 1) actifs++;
+      }
+
+      document.getElementById("departActifs").textContent = `Départs activés : ${actifs}/6`;
+
+      const etat = document.getElementById("etatGlobalDeparts");
+      if (actifs === 6) {
+        etat.textContent = "État : tous les départs sont activés";
+        etat.style.color = "blue";
+      } else if (actifs === 0) {
+        etat.textContent = "État : tous les départs sont désactivés";
+        etat.style.color = "red";
+      } else {
+        etat.textContent = "État : certains départs sont activés";
+        etat.style.color = "green";
+      }
+    }
+
+    function calculerTotaux() {
+      let totalCourant = 0;
+      let totalPuissance = 0;
+      let totalEnergie = 0;
+      let tensionUnique = 0;
+      let frequenceUnique = 0;
+      let cosrhoUnique = 0;
+      let departsAvecDonnees = 0;
+
+      for (let i = 1; i <= 6; i++) {
+        const m = mesuresDepart[i];
+        totalCourant += m.courant;
+        totalPuissance += m.puissance;
+        totalEnergie += m.energie;
+
+        if (tensionUnique === 0 && m.tension > 0) tensionUnique = m.tension;
+        if (frequenceUnique === 0 && m.frequence > 0) frequenceUnique = m.frequence;
+        if (cosrhoUnique === 0 && m.cosrho > 0) cosrhoUnique = m.cosrho;
+        if (m.courant > 0 || m.tension > 0 || m.puissance > 0 || m.energie > 0 || m.frequence > 0 || m.cosrho > 0) departsAvecDonnees++;
+      }
+
+      return { totalCourant, totalPuissance, totalEnergie, tensionUnique, frequenceUnique, cosrhoUnique, departsAvecDonnees };
+    }
+
+    function mettreAJourDashboardGlobal() {
+      const { totalCourant, totalPuissance, totalEnergie, tensionUnique, frequenceUnique, cosrhoUnique, departsAvecDonnees } = calculerTotaux();
+
+      document.getElementById("courantTotal").textContent = totalCourant.toFixed(2) + " A";
+      document.getElementById("puissanceTotale").textContent = totalPuissance.toFixed(2) + " W";
+      document.getElementById("tensionUnique").textContent = tensionUnique.toFixed(2) + " V";
+      document.getElementById("energieTotaleJour").textContent = totalEnergie.toFixed(3) + " kWh";
+      document.getElementById("pourcentageConso").textContent = Math.min(100, (totalEnergie / 10) * 100).toFixed(1) + " %";
+      document.getElementById("donneesRecues").textContent = departsAvecDonnees > 0 ? `Données  : reçues sur ${departsAvecDonnees}/6 départs` : "Données ESP32 : en attente";
+
+      const tranche = Math.floor(new Date().getHours() / 4);
+      const variation = Math.max(0, totalEnergie - consommationTotalePrecedente);
+      consommationHoraire[tranche] += variation;
+      consommationTotalePrecedente = totalEnergie;
+
+      barChartGlobal.data.datasets[0].data = consommationHoraire.map(v => Number(v.toFixed(3)));
+      barChartGlobal.update();
+
+      ajouterPoint(lineChartGlobal, totalEnergie);
+      ajouterPoint(powerGlobalChart, totalPuissance);
+
+      dashboardRef.update({
+        TotalCourant: totalCourant,
+        TensionUnique: tensionUnique,
+        TotalPuissance: totalPuissance,
+        TotalEnergie: totalEnergie,
+        DerniereMiseAJour: new Date().toISOString(),
+        ConsommationHoraire: consommationHoraire
+      });
+
+      sauvegarderHistoriqueGlobal(totalEnergie);
+      surveillerProtectionTensionFaible(tensionUnique);
+      analyserAvecIA();
+    }
+
+    function sauvegarderHistoriqueGlobal(totalEnergie) {
+      const nouvelleDate = new Date().toDateString();
+      if (nouvelleDate !== dateCourante) {
+        dateCourante = nouvelleDate;
+        consommationTotalePrecedente = 0;
+        for (let i = 0; i < consommationHoraire.length; i++) consommationHoraire[i] = 0;
+      }
+
+      const dateISO = obtenirDateLocaleISO();
+      dashboardRef.child("HistoriqueGlobal").child(dateISO).set({
+        date: dateISO,
+        energieTotale: totalEnergie,
+        derniereMaj: new Date().toISOString()
+      });
+    }
+
+    function chargerHistoriqueGlobal() {
+      dashboardRef.child("HistoriqueGlobal").limitToLast(3).on("value", snapshot => {
+        const data = snapshot.val() || {};
+        historiqueGlobal = Object.values(data).sort((a, b) => new Date(a.date) - new Date(b.date));
+        historiqueGlobalChart.data.labels = historiqueGlobal.map(h => h.date);
+        historiqueGlobalChart.data.datasets[0].data = historiqueGlobal.map(h => Number(h.energieTotale || 0).toFixed(3));
+        historiqueGlobalChart.update();
+      });
+    }
+
+    function surveillerProtectionTensionFaible(tensionUnique) {
+      if (tensionUnique > 0 && tensionUnique < 100) {
+        const updates = {};
+        for (let i = 1; i <= 6; i++) updates[`Commande${i}`] = 0;
+        commandeRef.update(updates);
+
+        document.getElementById("alerteSysteme").textContent = "Système : tension faible, départs coupés";
+        document.getElementById("alerteSysteme").style.color = "red";
+
+        if (!annonceTensionFaible) {
+          annonceTensionFaible = true;
+          parler("Attention, tension faible détectée. Tous les départs sont automatiquement désactivés pour protéger le système.");
+        }
+      } else {
+        annonceTensionFaible = false;
+        document.getElementById("alerteSysteme").textContent = "Système : normal";
+        document.getElementById("alerteSysteme").style.color = "#0066cc";
+      }
+    }
+
+    function analyserAvecIA(force = false) {
+      if (!force) {
+        const predictionEligibleAt = Number(sessionStorage.getItem("voicePredictionsEligibleAt") || 0);
+        if (!predictionEligibleAt) {
+          sessionStorage.setItem("voicePredictionsEligibleAt", String(Date.now() + 3600000));
+          return;
+        }
+        if (Date.now() < predictionEligibleAt) return;
+      }
+      if (!force && Date.now() - dernierePrediction < 3600000) return;
+      dernierePrediction = Date.now();
+
+      const { totalCourant, totalPuissance, totalEnergie, tensionUnique, frequenceUnique, cosrhoUnique, departsAvecDonnees } = calculerTotaux();
+      const anomalies = [];
+
+      if (departsAvecDonnees === 0) {
+        parler(`Analyse I A : aucune donnée réelle n'est encore reçue. Le système ${APPAREIL} est en attente de connexion .`);
+        document.getElementById("analyseIAEtat").textContent = "IA : attente du systeme ";
+        return;
+      }
+
+      if (totalCourant > 600) anomalies.push("le courant total dépasse la limite normale");
+      if (tensionUnique > 0 && (tensionUnique < 200 || tensionUnique > 250)) anomalies.push("la tension est hors de l'intervalle normal");
+      if (totalPuissance > 100000) anomalies.push("la puissance totale dépasse la limite normale");
+      if (totalEnergie > 120000) anomalies.push("la consommation totale journalière est élevée");
+
+      for (let i = 1; i <= 6; i++) {
+        const m = mesuresDepart[i];
+        if (m.courant > 100) anomalies.push(`courant élevé sur le départ ${i}`);
+        if (m.puissance > 25000) anomalies.push(`puissance élevée sur le départ ${i}`);
+      }
+
+      let message =
+        "Voici les mesures actuelles de la prédiction de l'état du système : " +
+        `Le courant total est de ${totalCourant.toFixed(2)} ampeires, ` +
+        `la tension est de ${tensionUnique.toFixed(2)} volts, ` +
+        `la puissance totale est de ${totalPuissance.toFixed(2)} watts, ` +
+        `l'énergie totale est de ${totalEnergie.toFixed(3)} kilowatt heires, ` +
+        `la fréquence est de ${frequenceUnique.toFixed(2)} hertz, ` +
+        `et le Facteur de puissance est de ${cosrhoUnique.toFixed(2)}. `;
+
+      if (anomalies.length === 0) {
+        message += `Analyse I A : les données sont normales. Le système ${APPAREIL} fonctionne correctement.`;
+        document.getElementById("analyseIAEtat").textContent = "IA : fonctionnement normal";
+        document.getElementById("analyseIAEtat").style.color = "#0066cc";
+      } else {
+        message += "Attention : des anomalies ont été détectées après analyse des données : " + anomalies.join(", ") + ".";
+        document.getElementById("analyseIAEtat").textContent = "IA : anomalies détectées";
+        document.getElementById("analyseIAEtat").style.color = "red";
+      }
+
+      parler(message);
+    }
+
+    function togglePredictionVocale() {
+      if (!window.speechSynthesis) return;
+      if (speechSynthesis.speaking || speechSynthesis.pending) {
+        speechSynthesis.cancel();
+        return;
+      }
+      analyserAvecIA(true);
+    }
+
+    function formaterDateHeure(dateISO) {
+      const date = new Date(dateISO);
+      return date.toLocaleDateString('fr-FR') + " " + date.toLocaleTimeString('fr-FR');
+    }
+
+    function etatTexteDepart(numero) {
+      return etatsCommande[numero] === 1 ? "Départ activé" : "Départ désactivé";
+    }
+
+    function construireLigneHistorique(item) {
+      const tr = document.createElement("tr");
+
+      if (item.type === "TOTAL_JOURNALIER") {
+        tr.innerHTML = `
+          <td>${formaterDateHeure(item.dateHeure)}</td>
+          <td><strong>Total journalier</strong></td>
+          <td><strong>${Number(item.courant || 0).toFixed(2)} A</strong></td>
+          <td><strong>${Number(item.tension || 0).toFixed(2)} V</strong></td>
+          <td><strong>${Number(item.puissance || 0).toFixed(2)} W</strong></td>
+          <td><strong>${Number(item.energie || 0).toFixed(3)} kWh</strong></td>
+          <td><strong>${Number(item.frequence || 0).toFixed(2)} Hz</strong></td>
+          <td><strong>${Number(item.cosrho || 0).toFixed(2)}</strong></td>
+          <td><strong>Synthèse des 6 départs</strong></td>
+        `;
+        return tr;
+      }
+
+      tr.innerHTML = `
+        <td>${formaterDateHeure(item.dateHeure)}</td>
+        <td>Départ ${item.depart}</td>
+        <td>${Number(item.courant || 0).toFixed(2)} A</td>
+        <td>${Number(item.tension || 0).toFixed(2)} V</td>
+        <td>${Number(item.puissance || 0).toFixed(2)} W</td>
+        <td>${Number(item.energie || 0).toFixed(3)} kWh</td>
+        <td>${Number(item.frequence || 0).toFixed(2)} Hz</td>
+        <td>${Number(item.cosrho || 0).toFixed(2)}</td>
+        <td class="${item.etat === 1 ? 'etat-actif' : 'etat-inactif'}">${item.etat === 1 ? 'Départ activé' : 'Départ désactivé'}</td>
+      `;
+      return tr;
+    }
+
+    let moisHistoriqueSelectionne = null;
+
+    function afficherHistoriqueDonnees() {
+      const tbody = document.getElementById("historiqueDonneesBody");
+      const filtersContainer = document.getElementById("month-filters");
+      if (!tbody) return;
+
+      tbody.innerHTML = "";
+      if (filtersContainer) filtersContainer.innerHTML = "";
+
+      if (historiqueDonnees.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="9">Aucun historique disponible pour le moment.</td></tr>`;
+        return;
+      }
+
+      const uniques = new Map();
+
+      historiqueDonnees.forEach(item => {
+        const cle = item.type === "TOTAL_JOURNALIER"
+          ? `${item.date}-TOTAL`
+          : `${item.date}-DEPART-${item.depart}`;
+
+        const precedent = uniques.get(cle);
+        if (!precedent || new Date(item.dateHeure) >= new Date(precedent.dateHeure)) {
+          uniques.set(cle, item);
+        }
+      });
+
+      const allItems = Array.from(uniques.values()).sort((a, b) => new Date(b.dateHeure) - new Date(a.dateHeure));
+
+      // Extraire les mois uniques
+      const moisDisponibles = new Set();
+      const moisMap = {};
+
+      allItems.forEach(item => {
+        const d = new Date(item.dateHeure);
+        const yyyy_mm = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+        const label = d.toLocaleString('fr-FR', { month: 'long', year: 'numeric' });
+        
+        moisDisponibles.add(yyyy_mm);
+        moisMap[yyyy_mm] = label.charAt(0).toUpperCase() + label.slice(1);
+      });
+
+      const arrayMois = Array.from(moisDisponibles).sort((a, b) => b.localeCompare(a));
+
+      // On retire la sélection par défaut pour permettre de tout voir dès le début
+      // ou on peut garder le comportement initial si souhaité. Mais pour pouvoir 
+      // fermer, il faut gérer le clic correctement.
+
+      // Création des boutons de filtres mensuels
+      if (filtersContainer) {
+        arrayMois.forEach(yyyy_mm => {
+          const btn = document.createElement("button");
+          btn.innerText = moisMap[yyyy_mm];
+          btn.style.padding = "6px 14px";
+          btn.style.borderRadius = "20px";
+          btn.style.border = "none";
+          btn.style.fontSize = "0.85rem";
+          btn.style.fontWeight = "700";
+          btn.style.cursor = "pointer";
+          btn.style.transition = "all 0.3s";
+          
+          if (yyyy_mm === moisHistoriqueSelectionne) {
+            btn.style.background = "var(--primary)";
+            btn.style.color = "white";
+            btn.style.boxShadow = "0 4px 10px rgba(59, 130, 246, 0.3)";
+          } else {
+            btn.style.background = "rgba(59, 130, 246, 0.1)";
+            btn.style.color = "var(--primary)";
+          }
+
+          btn.onclick = () => {
+            if (moisHistoriqueSelectionne === yyyy_mm) {
+              moisHistoriqueSelectionne = null; // Désélection (fermeture)
+            } else {
+              moisHistoriqueSelectionne = yyyy_mm; // Sélection
+            }
+            afficherHistoriqueDonnees();
+          };
+
+          filtersContainer.appendChild(btn);
+        });
+      }
+
+      // Filtrer et afficher
+      const itemsFiltres = moisHistoriqueSelectionne ? allItems.filter(item => {
+        const d = new Date(item.dateHeure);
+        const yyyy_mm = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+        return yyyy_mm === moisHistoriqueSelectionne;
+      }) : allItems;
+
+      if (itemsFiltres.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="9">Aucun historique pour ce mois.</td></tr>`;
+      } else {
+        itemsFiltres.forEach(item => tbody.appendChild(construireLigneHistorique(item)));
+      }
+    }
+
+    function chargerHistoriqueDonnees() {
+      const anneeActuelle = new Date().getFullYear().toString();
+
+      dashboardRef
+        .child("HistoriqueAnnuelDeparts")
+        .child(anneeActuelle)
+        .on("value", snapshot => {
+          const data = snapshot.val() || {};
+          historiqueDonnees = [];
+
+          Object.values(data).forEach(jour => {
+            Object.values(jour).forEach(ligne => {
+              historiqueDonnees.push(ligne);
+            });
+          });
+
+          afficherHistoriqueDonnees();
+        });
+    }
+
+    function sauvegarderTotalJournalier(dateJour, anneeActuelle, maintenantISO) {
+      let totalCourant = 0;
+      let totalPuissance = 0;
+      let totalEnergie = 0;
+      let tensionUnique = 0;
+      let frequenceUnique = 0;
+      let cosrhoUnique = 0;
+
+      for (let i = 1; i <= 6; i++) {
+        const m = mesuresDepart[i] || { courant: 0, tension: 0, puissance: 0, energie: 0, frequence: 0, cosrho: 0 };
+        totalCourant += m.courant;
+        totalPuissance += m.puissance;
+        totalEnergie += m.energie;
+        if (tensionUnique === 0 && m.tension > 0) tensionUnique = m.tension;
+        if (frequenceUnique === 0 && m.frequence > 0) frequenceUnique = m.frequence;
+        if (cosrhoUnique === 0 && m.cosrho > 0) cosrhoUnique = m.cosrho;
+      }
+
+      const totalJour = {
+        type: "TOTAL_JOURNALIER",
+        dateHeure: maintenantISO,
+        date: dateJour,
+        annee: anneeActuelle,
+        depart: "TOTAL",
+        courant: totalCourant,
+        tension: tensionUnique,
+        puissance: totalPuissance,
+        energie: totalEnergie,
+        frequence: frequenceUnique,
+        cosrho: cosrhoUnique,
+        etat: "TOTAL"
+      };
+
+      dashboardRef
+        .child("HistoriqueAnnuelDeparts")
+        .child(anneeActuelle)
+        .child(dateJour)
+        .child("TotalJournalier")
+        .set(totalJour);
+    }
+
+    function ajouterLigneHistoriqueDonnees(numero, courant, tension, puissance, energie, frequence, cosrho) {
+      const maintenant = new Date();
+      const dateJour = obtenirDateLocaleISO(maintenant);
+      const anneeActuelle = maintenant.getFullYear().toString();
+      const maintenantISO = maintenant.toISOString();
+
+      const item = {
+        type: "DEPART",
+        dateHeure: maintenantISO,
+        date: dateJour,
+        annee: anneeActuelle,
+        depart: numero,
+        courant,
+        tension,
+        puissance,
+        energie,
+        frequence,
+        cosrho,
+        etat: etatsCommande[numero] || 0
+      };
+
+      // Une seule ligne par jour pour chaque départ.
+      // Chaque nouvelle valeur du même jour remplace l'ancienne ligne du même départ.
+      dashboardRef
+        .child("HistoriqueAnnuelDeparts")
+        .child(anneeActuelle)
+        .child(dateJour)
+        .child(`Depart${numero}`)
+        .set(item);
+
+      // Ligne supplémentaire : somme des données des 6 départs pour la journée.
+      sauvegarderTotalJournalier(dateJour, anneeActuelle, maintenantISO);
+    }
+
+
+    function mettreAJourHistoriqueEtatDepart(numero) {
+      const maintenant = new Date();
+      const dateJour = obtenirDateLocaleISO(maintenant);
+      const anneeActuelle = maintenant.getFullYear().toString();
+      const maintenantISO = maintenant.toISOString();
+      const m = mesuresDepart[numero] || { courant: 0, tension: 0, puissance: 0, energie: 0, frequence: 0, cosrho: 0 };
+
+      const item = {
+        type: "DEPART",
+        dateHeure: maintenantISO,
+        date: dateJour,
+        annee: anneeActuelle,
+        depart: numero,
+        courant: m.courant || 0,
+        tension: m.tension || 0,
+        puissance: m.puissance || 0,
+        energie: m.energie || 0,
+        frequence: m.frequence || 0,
+        cosrho: m.cosrho || 0,
+        etat: etatsCommande[numero] || 0
+      };
+
+      // Si on active ou désactive un départ, la ligne du jour est aussi mise à jour
+      // dans le tableau historique, même si les données électriques n'ont pas changé.
+      dashboardRef
+        .child("HistoriqueAnnuelDeparts")
+        .child(anneeActuelle)
+        .child(dateJour)
+        .child(`Depart${numero}`)
+        .set(item);
+
+      sauvegarderTotalJournalier(dateJour, anneeActuelle, maintenantISO);
+    }
+
+    function nettoyerHistoriqueApresUneAnnee() {
+      const anneeActuelle = new Date().getFullYear().toString();
+
+      dashboardRef.child("HistoriqueAnnuelDeparts").once("value", snapshot => {
+        const data = snapshot.val() || {};
+
+        Object.keys(data).forEach(annee => {
+          if (annee !== anneeActuelle) {
+            dashboardRef.child("HistoriqueAnnuelDeparts").child(annee).remove();
+          }
+        });
+      });
+    }
+
+    function nettoyerHistoriqueGlobalApresUneAnnee() {
+      const limite = new Date();
+      limite.setFullYear(limite.getFullYear() - 1);
+
+      dashboardRef.child("HistoriqueGlobal").once("value", snapshot => {
+        const data = snapshot.val() || {};
+
+        Object.keys(data).forEach(dateCle => {
+          const dateHistorique = new Date(dateCle);
+          if (dateHistorique < limite) {
+            dashboardRef.child("HistoriqueGlobal").child(dateCle).remove();
+          }
+        });
+      });
+    }
+
+    function initialiserCheminsSansSimulation() {
+      for (let i = 1; i <= 6; i++) {
+        donneesRef.child(`Depart${i}`).once("value").then(snapshot => {
+          if (!snapshot.exists()) {
+            donneesRef.child(`Depart${i}`).set({
+              [`CourantD${i}`]: 0,
+              [`TensionD${i}`]: 0,
+              [`PuissanceD${i}`]: 0,
+              [`EnergieD${i}`]: 0,
+              [`FrequenceD${i}`]: 0,
+              [`CosRhoD${i}`]: 0,
+              Historique: { DerniereMiseAJour: "En attente " }
+            });
+          }
+        });
+
+        commandeRef.child(`Commande${i}`).once("value").then(snapshot => {
+          if (!snapshot.exists()) commandeRef.child(`Commande${i}`).set(0);
+        });
+      }
+    }
+
+    nettoyerHistoriqueApresUneAnnee();
+    nettoyerHistoriqueGlobalApresUneAnnee();
+    initialiserCheminsSansSimulation();
+    chargerHistoriqueGlobal();
+    chargerHistoriqueDonnees();
+
+    for (let i = 1; i <= 6; i++) {
+      ecouterDonneesDepart(i);
+      ecouterCommandeDepart(i);
+    }
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('service-worker.js')
+          .then(reg => console.log('Service Worker enregistré', reg))
+          .catch(err => console.log('Erreur SW', err));
+      });
+    }
+
+const predictionEligibleAt = Number(sessionStorage.getItem("voicePredictionsEligibleAt") || (Date.now() + 3600000));
+if (!sessionStorage.getItem("voicePredictionsEligibleAt")) sessionStorage.setItem("voicePredictionsEligibleAt", String(predictionEligibleAt));
+setTimeout(() => {
+  analyserAvecIA();
+  setInterval(analyserAvecIA, 3600000);
+}, Math.max(0, predictionEligibleAt - Date.now()));
+
+  </script>
+  <script src="live-features.js"></script>
+  
+  <!-- Initialisation de AOS -->
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script>
+    AOS.init({
+      duration: 600, // durée de l'animation
+      once: true,    // anime une seule fois
+      easing: 'ease-out'
+    });
+  </script>
+  <script src="device-labels.js"></script>
+</body>
+</html>

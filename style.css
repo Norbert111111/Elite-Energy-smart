@@ -1,0 +1,332 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+/* ===== Base Settings ===== */
+body {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100vh;
+  background-color: #f1f5f9;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(219, 234, 254, 1) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(224, 231, 255, 1) 0px, transparent 50%);
+  color: #1e293b;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+/* Wrapper */
+.login-wrapper {
+  width: 100%;
+  padding: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.login-container {
+  display: flex;
+  width: 100%;
+  max-width: 1100px;
+  min-height: 650px;
+  border-radius: 32px;
+  background: #ffffff;
+  box-shadow: 0 40px 80px rgba(15, 23, 42, 0.1), inset 0 2px 4px rgba(255, 255, 255, 0.8);
+  overflow: hidden;
+}
+
+/* Left Section: Info (Dark & Striking) */
+.info-section {
+  flex: 1.1;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  padding: 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Add a subtle decorative shape to the dark side */
+.info-section::before {
+  content: '';
+  position: absolute;
+  top: -20%;
+  left: -10%;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.2) 0%, transparent 70%);
+  border-radius: 50%;
+}
+
+.brand-logo {
+  margin-bottom: 40px;
+  position: relative;
+  z-index: 1;
+}
+
+.brand-logo img {
+  width: 90px;
+  height: 90px;
+  border-radius: 24px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+  border: 2px solid rgba(255,255,255,0.1);
+}
+
+.info-section h2 {
+  font-size: 13px;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 15px;
+  font-weight: 700;
+  position: relative;
+  z-index: 1;
+}
+
+.info-section h1 {
+  font-size: 42px;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 25px;
+  line-height: 1.15;
+  letter-spacing: -1px;
+  position: relative;
+  z-index: 1;
+}
+
+.info-section p {
+  font-size: 17px;
+  color: #cbd5e1;
+  line-height: 1.7;
+  margin-bottom: 40px;
+  font-weight: 400;
+  position: relative;
+  z-index: 1;
+}
+
+.highlight {
+  color: #60a5fa;
+  font-weight: 700;
+}
+
+.feature-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  position: relative;
+  z-index: 1;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #f1f5f9;
+}
+
+.feature-item i {
+  color: #ffffff;
+  background: rgba(59, 130, 246, 0.8);
+  padding: 12px;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+}
+
+/* Right Section: Form (Bright & Clean) */
+.form-section {
+  flex: 0.9;
+  padding: 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: #ffffff;
+}
+
+.form-header {
+  margin-bottom: 45px;
+}
+
+.form-header h3 {
+  font-size: 32px;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 10px;
+  letter-spacing: -0.5px;
+}
+
+.form-header p {
+  color: #64748b;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.login-box {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.input-group label {
+  font-size: 14px;
+  font-weight: 700;
+  color: #334155;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.input-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon i {
+  position: absolute;
+  left: 20px;
+  color: #94a3b8;
+  font-size: 18px;
+  transition: color 0.3s ease;
+}
+
+.input-icon input {
+  width: 100%;
+  padding: 18px 20px 18px 55px;
+  border: 2px solid #e2e8f0;
+  border-radius: 16px;
+  background: #f8fafc;
+  font-size: 16px;
+  color: #0f172a;
+  font-family: inherit;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.input-icon input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  background: #ffffff;
+  box-shadow: 0 10px 25px rgba(59, 130, 246, 0.1);
+}
+
+.input-icon input:focus + i,
+.input-icon input:not(:placeholder-shown) + i {
+  /* This works if input is before i in html, but our html has i before input. Let's fix icon color on focus below using focus-within */
+}
+
+.input-icon:focus-within i {
+  color: #3b82f6;
+}
+
+.input-icon input::placeholder {
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+/* Chrome autofill styling fix */
+input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0px 1000px #ffffff inset !important;
+  -webkit-text-fill-color: #0f172a !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+.btn-primary {
+  margin-top: 15px;
+  padding: 18px;
+  border: none;
+  border-radius: 16px;
+  background: #2563eb;
+  color: #ffffff;
+  font-size: 17px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 10px 25px rgba(37, 99, 235, 0.3);
+}
+
+.btn-primary:hover {
+  background: #1d4ed8;
+  transform: translateY(-3px);
+  box-shadow: 0 15px 35px rgba(37, 99, 235, 0.4);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+  box-shadow: 0 5px 15px rgba(37, 99, 235, 0.3);
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+  .login-container {
+    flex-direction: column;
+    min-height: auto;
+  }
+  
+  .info-section {
+    padding: 40px;
+    flex: none;
+  }
+  
+  .info-section h1 {
+    font-size: 32px;
+  }
+  
+  .form-section {
+    padding: 40px;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    overflow-y: auto;
+    height: auto;
+    padding: 20px 0;
+  }
+  
+  .login-wrapper {
+    padding: 15px;
+  }
+  
+  .info-section, .form-section {
+    padding: 30px 24px;
+  }
+  
+  .info-section h1 {
+    font-size: 28px;
+  }
+  
+  .form-header h3 {
+    font-size: 26px;
+  }
+  
+  .input-icon input {
+    padding: 16px 16px 16px 50px;
+  }
+  
+  .feature-list {
+    display: none; 
+  }
+}
+
+body {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}

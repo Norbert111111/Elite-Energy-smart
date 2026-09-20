@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - Elite Energy</title>
+  
+  <script>
+    // Par sécurité, on pourrait exiger que l'utilisateur soit connecté 
+    // Mais comme demandé, on y accède via /admin dans l'URL.
+  </script>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --primary: #3b82f6;
+      --primary-dark: #1d4ed8;
+      --primary-light: #eff6ff;
+      --bg: #f4f7fa;
+      --card-border: rgba(226, 232, 240, 0.8);
+      --text-dark: #0f172a;
+      --text-gray: #64748b;
+      --success: #10b981;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+    
+    body {
+      background-color: var(--bg);
+      color: var(--text-dark);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 4rem 2rem;
+      background-image: radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.1), transparent 50%);
+    }
+
+    .admin-header {
+      text-align: center;
+      margin-bottom: 4rem;
+    }
+
+    .admin-header h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+      color: var(--text-dark);
+    }
+    
+    .admin-header h1 span { color: var(--primary); }
+    .admin-header p { color: var(--text-gray); font-size: 1.1rem; }
+
+    .admin-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      width: 100%;
+      max-width: 1000px;
+    }
+
+    .admin-card {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--card-border);
+      border-radius: 24px;
+      padding: 3rem 2.5rem;
+      box-shadow: 0 15px 35px rgba(15, 23, 42, 0.04);
+      transition: all 0.3s ease;
+    }
+
+    .admin-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 25px 50px rgba(15, 23, 42, 0.08);
+      border-color: rgba(59, 130, 246, 0.3);
+    }
+
+    .admin-card h2 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      color: var(--text-dark);
+    }
+    
+    .admin-card h2 i { color: var(--primary); }
+    .admin-card p { color: var(--text-gray); margin-bottom: 2rem; font-size: 0.95rem; }
+
+    .form-group { margin-bottom: 1.5rem; }
+    .form-group label {
+      display: block; font-size: 0.95rem; font-weight: 700; margin-bottom: 0.8rem; color: var(--text-dark);
+    }
+    
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 1.2rem;
+      background: #f8fafc;
+      border: 2px solid #e2e8f0;
+      border-radius: 16px;
+      color: var(--text-dark);
+      font-size: 1.05rem;
+      font-weight: 500;
+      transition: all 0.3s;
+      outline: none;
+      appearance: none;
+    }
+
+    .form-group select {
+      background-image: url('data:image/svg+xml;utf8,<svg fill="%2364748b" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+      background-repeat: no-repeat;
+      background-position: right 1.2rem center;
+    }
+
+    .form-group input::placeholder, .form-group select:invalid {
+      color: #94a3b8;
+      font-weight: 400;
+    }
+
+    .form-group input:focus, .form-group select:focus {
+      border-color: var(--primary);
+      background: white;
+      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+    }
+
+    .btn-submit {
+      width: 100%;
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 1rem;
+      border-radius: 12px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.3s;
+      margin-top: 1rem;
+    }
+
+    .btn-submit:hover { background: var(--primary-dark); transform: translateY(-2px); }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text-gray);
+      text-decoration: none;
+      margin-top: 3rem;
+      font-weight: 600;
+      transition: color 0.3s;
+    }
+    .back-link:hover { color: var(--primary); }
+
+    /* Notification */
+    .notification {
+      position: fixed;
+      top: 2rem; right: 2rem;
+      background: var(--success);
+      color: white;
+      padding: 1rem 1.5rem;
+      border-radius: 12px;
+      font-weight: 600;
+      display: flex; align-items: center; gap: 0.8rem;
+      box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
+      transform: translateX(150%);
+      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 1000;
+    }
+    .notification.show { transform: translateX(0); }
+
+    /* Présence temps réel et boutons d'état : seules les zones demandées sont enrichies. */
+    .account-toggle {
+      border: 0; border-radius: 999px; padding: .65rem 1rem; color: white; font-weight: 800;
+      cursor: pointer; min-width: 110px; transition: transform .2s, box-shadow .2s;
+    }
+    .account-toggle[data-active="true"] { background: linear-gradient(135deg, #ef4444, #dc2626); box-shadow: 0 6px 16px rgba(239,68,68,.22); }
+    .account-toggle[data-active="false"] { background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 6px 16px rgba(16,185,129,.22); }
+    .account-toggle:hover { transform: translateY(-2px); }
+    .presence-summary { display: flex; align-items: center; gap: .6rem; font-weight: 800; color: var(--text-dark) !important; margin-bottom: 1rem !important; }
+    .presence-summary::before { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--success); box-shadow: 0 0 0 5px rgba(16,185,129,.12); }
+    .presence-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(230px,1fr)); gap: .9rem; }
+    .presence-item { border: 1px solid #e2e8f0; border-radius: 16px; padding: 1rem; background: #f8fafc; }
+    .presence-item-head { display:flex; justify-content:space-between; align-items:center; gap:.6rem; margin-bottom:.7rem; }
+    .presence-identity { font-weight: 800; overflow-wrap:anywhere; }
+    .presence-badge { font-size:.75rem; font-weight:800; padding:.35rem .65rem; border-radius:999px; white-space:nowrap; }
+    .presence-badge.online { color:#047857; background:#d1fae5; }
+    .presence-badge.offline { color:#64748b; background:#e2e8f0; }
+    .presence-activity { color:#334155; font-size:.88rem; margin-bottom:.45rem; }
+    .presence-time { color:#94a3b8; font-size:.78rem; }
+
+    /* Lock Screen */
+    #admin-lock {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      transition: opacity 0.5s ease;
+    }
+    
+    .lock-card {
+      background: white;
+      padding: 3rem;
+      border-radius: 24px;
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+      border: 1px solid var(--card-border);
+      text-align: center;
+      max-width: 400px;
+      width: 90%;
+    }
+
+    .lock-card i {
+      font-size: 3rem;
+      color: var(--primary);
+      margin-bottom: 1.5rem;
+    }
+
+    .lock-card h2 {
+      font-size: 1.5rem;
+      color: var(--text-dark);
+      margin-bottom: 0.5rem;
+    }
+
+    .lock-card p {
+      color: var(--text-gray);
+      margin-bottom: 2rem;
+      font-size: 0.95rem;
+    }
+
+    #admin-content {
+      display: none; /* Hidden by default */
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    @media (max-width: 768px) {
+      .admin-grid { grid-template-columns: 1fr; }
+      body { padding: 2rem 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Écran de verrouillage -->
+  <div id="admin-lock">
+    <div class="lock-card">
+      <i class="fas fa-lock"></i>
+      <h2>Accès Restreint</h2>
+      <p>Veuillez entrer la clé d'administration pour continuer.</p>
+      <form onsubmit="verifierCle(event)">
+        <div class="form-group" style="text-align: left;">
+          <input type="password" id="adminKey" placeholder="Clé d'accès..." required>
+        </div>
+        <button type="submit" class="btn-submit">Déverrouiller <i class="fas fa-unlock"></i></button>
+      </form>
+    </div>
+  </div>
+
+  <div class="notification" id="notif">
+    <i class="fas fa-check-circle"></i> <span id="notif-text">Succès</span>
+  </div>
+
+  <div id="admin-content" style="display: none;">
+    <div class="admin-header">
+    <h1>Administration <span>Elite Energy</span></h1>
+    <p>Gérez les utilisateurs et le déploiement des équipements IoT</p>
+  </div>
+
+  <div class="admin-grid">
+    <!-- Formulaire Utilisateur -->
+    <div class="admin-card">
+      <h2><i class="fas fa-user-plus"></i> Créer un Utilisateur</h2>
+      <p>Ajoutez un nouvel administrateur ou technicien.</p>
+      
+      <form id="formUser" onsubmit="creerUtilisateur(event)">
+        <div class="form-group">
+          <label>Nom complet</label>
+          <input type="text" id="newFullName" placeholder="Ex: Jean Dupont" required>
+        </div>
+        <div class="form-group">
+          <label>Identifiant (Nom d'utilisateur)</label>
+          <input type="text" id="newUsername" placeholder="Ex: admin2" required>
+        </div>
+        <div class="form-group">
+          <label>Rôle</label>
+          <select id="newUserRole" required>
+            <option value="Administrateur">Administrateur</option>
+            <option value="Superviseur">Superviseur</option>
+            <option value="Technicien">Technicien</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Appareil Assigné</label>
+          <input type="text" id="newUserDevice" placeholder="Ex: ELITE1" required>
+        </div>
+        <div class="form-group">
+          <label>Mot de passe</label>
+          <input type="password" id="newPassword" placeholder="••••••••" required>
+        </div>
+
+        <div class="form-group">
+          <label for="newDeviceDesc">Description de l'appareil</label>
+          <input type="text" id="newDeviceDesc" placeholder="Ex: Transformateur Gombe" required>
+        </div>
+        <div class="form-group">
+          <label for="newDeviceGPS">Coordonnées GPS (latitude, longitude)</label>
+          <input type="text" id="newDeviceGPS" placeholder="Ex: -4.322447, 15.307045" required>
+        </div>
+        <div class="form-group">
+          <label for="newDeviceVoltage">Tension nominale</label>
+          <select id="newDeviceVoltage" required>
+            <option value="220">220V Monophasé</option>
+            <option value="380">380V Triphasé</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="newDevicePower">Puissance maximale (kVA)</label>
+          <input type="number" id="newDevicePower" min="0.01" step="any" placeholder="Ex: 500" required>
+        </div>
+        <button type="submit" class="btn-submit">Créer l'utilisateur <i class="fas fa-plus"></i></button>
+      </form>
+    </div>
+
+    <!-- Formulaire Appareil -->
+    <div class="admin-card">
+      <h2><i class="fas fa-microchip"></i> Connecter un Appareil</h2>
+      <p>Initialisez un appareil pour un nouveau client après désactivation des anciens accès.</p>
+      
+      <form id="formDevice" onsubmit="connecterAppareil(event)">
+        <div class="form-group">
+          <label>ID de l'Appareil</label>
+          <input type="text" id="deviceId" placeholder="Ex: ELITE1" value="ELITE1" required>
+        </div>
+        <div class="form-group"><label>Nom complet du nouveau client</label><input id="deviceFullName" required></div>
+        <div class="form-group"><label>Identifiant du nouveau client</label><input id="deviceUsername" required></div>
+        <div class="form-group"><label>Rôle</label><select id="deviceRole"><option>Administrateur</option><option>Superviseur</option><option>Technicien</option></select></div>
+        <div class="form-group"><label>Mot de passe</label><input type="password" id="devicePassword" required></div>
+        <div class="form-group">
+          <label>Localisation / Description</label>
+          <input type="text" id="deviceDesc" placeholder="Ex: Transformateur Gombe" required>
+        </div>
+        <div class="form-group">
+          <label>Coordonnées GPS</label>
+          <input type="text" id="deviceGPS" placeholder="Ex: -4.322447, 15.307045" required>
+        </div>
+        <div class="form-group">
+          <label>Tension Nominale</label>
+          <select id="deviceVoltage" required>
+            <option value="220">220V Monophasé</option>
+            <option value="380">380V Triphasé</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Puissance Maximale (kVA)</label>
+          <input type="number" id="devicePower" placeholder="Ex: 500" required>
+        </div>
+        <button type="submit" class="btn-submit">Initialiser l'Appareil <i class="fas fa-satellite-dish"></i></button>
+      </form>
+    </div>
+  </div>
+
+  <div class="admin-card" style="max-width: 1000px; width: 100%; margin-top: 2rem;">
+    <h2><i class="fas fa-user-clock"></i> Présence et activité en temps réel</h2>
+    <p id="presenceSummary" class="presence-summary">Chargement des présences…</p>
+    <div id="presenceList" class="presence-grid" aria-live="polite"></div>
+  </div>
+
+  <!-- Section Liste des Utilisateurs -->
+  <div class="admin-card" style="max-width: 1000px; width: 100%; margin-top: 2rem;">
+    <h2><i class="fas fa-users"></i> Utilisateurs Enregistrés</h2>
+    <p>Liste de tous les comptes ayant accès au système Elite Energy.</p>
+    
+    <div style="overflow-x: auto; margin-top: 1rem;">
+      <table id="usersTable" style="width: 100%; border-collapse: collapse; text-align: left;">
+        <thead>
+          <tr style="border-bottom: 2px solid var(--card-border);">
+            <th style="padding: 1rem; color: var(--text-gray);">Nom Complet</th>
+            <th style="padding: 1rem; color: var(--text-gray);">Identifiant</th>
+            <th style="padding: 1rem; color: var(--text-gray);">Rôle</th>
+            <th style="padding: 1rem; color: var(--text-gray);">Appareil</th>
+            <th style="padding: 1rem; color: var(--text-gray);">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Rempli par JavaScript -->
+          <tr><td colspan="5" style="padding: 1rem; text-align: center; color: var(--text-gray);">Chargement des utilisateurs...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="admin-card" style="max-width: 1000px; width: 100%; margin-top: 2rem;">
+    <h2><i class="fas fa-ban"></i> Appareils désactivés</h2>
+    <div style="overflow-x:auto"><table id="inactiveUsersTable" style="width:100%; border-collapse:collapse; text-align:left"><thead><tr><th>Nom</th><th>Identifiant</th><th>Rôle</th><th>Appareil</th><th>Action</th></tr></thead><tbody></tbody></table></div>
+  </div>
+
+  <a href="login.html" class="back-link"><i class="fas fa-arrow-left"></i> Retour à la connexion</a>
+
+  <div class="bottom-nav" style="display:flex;gap:1.5rem;justify-content:center;padding:1rem">
+    <a href="index.html" title="Accueil"><i class="fas fa-home"></i></a>
+    <a href="index1.html" title="Contrôle et commande"><i class="fas fa-sliders-h"></i></a>
+    <a href="index2.html" title="Dashboard"><i class="fas fa-chart-line"></i></a>
+    <a href="admin.html" title="Administration"><i class="fas fa-user-shield"></i></a>
+  </div>
+
+  </div> <!-- Fin admin-content -->
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-database-compat.js"></script>
+  
+  <script src="provisioning.js"></script>
+  <script>
+    // --- VERROUILLAGE ---
+    const CLE_SECRETE = "ELITE2026"; // Clé d'accès à modifier si besoin
+
+    window.addEventListener('DOMContentLoaded', () => {
+      if (sessionStorage.getItem("adminUnlocked") === "true") {
+        document.getElementById("admin-lock").style.display = "none";
+        document.getElementById("admin-content").style.display = "flex";
+      }
+    });
+
+    function verifierCle(e) {
+      e.preventDefault();
+      const input = document.getElementById("adminKey").value;
+      if (input === CLE_SECRETE) {
+        sessionStorage.setItem("adminUnlocked", "true");
+        document.getElementById("admin-lock").style.opacity = "0";
+        setTimeout(() => {
+          document.getElementById("admin-lock").style.display = "none";
+          document.getElementById("admin-content").style.display = "flex";
+        }, 500);
+      } else {
+        alert("Clé incorrecte. Accès refusé.");
+        document.getElementById("adminKey").value = "";
+      }
+    }
+
+    // --- FIREBASE CONFIG ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyArEB0lH1tz3OOvrgKzL0cypYfMpQVgPm0",
+      authDomain: "maison-iot-b0dd6.firebaseapp.com",
+      databaseURL: "https://maison-iot-b0dd6-default-rtdb.firebaseio.com",
+      projectId: "maison-iot-b0dd6",
+      storageBucket: "maison-iot-b0dd6.appspot.com",
+      messagingSenderId: "838021465845",
+      appId: "1:838021465845:web:b277f02fd883b0c23627bc",
+      measurementId: "G-P697GH67M1"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    function showNotification(msg) {
+      const notif = document.getElementById("notif");
+      document.getElementById("notif-text").textContent = msg;
+      notif.classList.add("show");
+      setTimeout(() => notif.classList.remove("show"), 3000);
+    }
+
+    async function creerUtilisateur(e) {
+      e.preventDefault();
+      const form = document.getElementById("formUser");
+      if (!form.reportValidity()) return;
+      const button = form.querySelector('button[type="submit"]');
+      if (button.disabled) return;
+      const input = {
+        fullName: document.getElementById("newFullName").value.trim(),
+        username: document.getElementById("newUsername").value.trim(),
+        role: document.getElementById("newUserRole").value,
+        device: document.getElementById("newUserDevice").value.trim().toUpperCase(),
+        password: document.getElementById("newPassword").value.trim(),
+        description: document.getElementById("newDeviceDesc").value.trim(),
+        gps: document.getElementById("newDeviceGPS").value.trim(),
+        voltage: Number(document.getElementById("newDeviceVoltage").value),
+        power: Number(document.getElementById("newDevicePower").value)
+      };
+      const original = button.innerHTML;
+      button.disabled = true;
+      button.textContent = "Création en cours…";
+      try {
+        await EliteProvisioning.create(database, input);
+        // Notification existante, facultative, après confirmation Firebase.
+        fetch("http://localhost:3000/api/welcome", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ nomComplet: input.fullName, username: input.username,
+            role: input.role, appareil: input.device })
+        }).catch(() => {});
+        showNotification("Utilisateur " + input.username + " créé : application " + input.device + " prête !");
+        form.reset();
+      } catch (err) {
+        alert("Création impossible : " + err.message);
+      } finally {
+        button.disabled = false;
+        button.innerHTML = original;
+      }
+    }
+
+    async function connecterAppareil(e) {
+      e.preventDefault();
+      const form = document.getElementById('formDevice');
+      if (!form.reportValidity()) return;
+      const input = { device: document.getElementById('deviceId').value.trim().toUpperCase(),
+        fullName: document.getElementById('deviceFullName').value.trim(),
+        username: document.getElementById('deviceUsername').value.trim(),
+        role: document.getElementById('deviceRole').value,
+        password: document.getElementById('devicePassword').value,
+        description: document.getElementById('deviceDesc').value.trim(),
+        gps: document.getElementById('deviceGPS').value.trim(),
+        voltage: Number(document.getElementById('deviceVoltage').value),
+        power: Number(document.getElementById('devicePower').value) };
+      try {
+        await EliteProvisioning.initialize(database, input);
+        showNotification('Appareil ' + input.device + ' initialisé pour ' + input.username);
+        form.reset();
+      } catch (err) { alert('Initialisation impossible : ' + err.message); }
+    }
+
+    // --- CHARGEMENT DES UTILISATEURS ---
+    function chargerUtilisateurs() {
+      const tbody = document.querySelector("#usersTable tbody");
+      const inactiveBody = document.querySelector('#inactiveUsersTable tbody');
+      
+      database.ref("/").on("value", (snapshot) => {
+        const allData = snapshot.val();
+        if (!allData) {
+          tbody.innerHTML = '<tr><td colspan="5" style="padding: 1rem; text-align: center; color: var(--text-gray);">Aucun utilisateur trouvé.</td></tr>';
+          inactiveBody.innerHTML = '<tr><td>Aucun appareil désactivé.</td></tr>';
+          return;
+        }
+
+        let rowsHTML = "", inactiveHTML = "";
+        for (const deviceId in allData) {
+          const usersKey = "users" + deviceId;
+          const usersNode = allData[deviceId][usersKey];
+
+          if (usersNode) {
+            for (const username in usersNode) {
+              const u = usersNode[username];
+              const row = `
+                <tr style="border-bottom: 1px solid var(--card-border);">
+                  <td style="padding: 1rem; color: var(--text-dark); font-weight: 500;">${escapeHTML(u.nomComplet || '-')}</td>
+                  <td style="padding: 1rem; color: var(--primary); font-family: monospace;">${escapeHTML(username)}</td>
+                  <td style="padding: 1rem; color: var(--text-dark);">${escapeHTML(u.role || 'Utilisateur')}</td>
+                  <td style="padding: 1rem; color: var(--text-dark);">${escapeHTML(u.appareilAssigne || deviceId)}</td>
+                  <td style="padding: 1rem;">
+                    <button class="account-toggle" data-device="${escapeHTML(deviceId)}" data-user="${escapeHTML(username)}" data-active="${u.active === false ? 'false' : 'true'}">${u.active === false ? 'Activer' : 'Désactiver'}</button>
+                  </td>
+                </tr>
+              `;
+              if (u.active === false) inactiveHTML += row;
+              else rowsHTML += row;
+            }
+          }
+        }
+
+        if (rowsHTML === "") {
+          tbody.innerHTML = '<tr><td colspan="5" style="padding: 1rem; text-align: center; color: var(--text-gray);">Aucun utilisateur trouvé.</td></tr>';
+        } else {
+          tbody.innerHTML = rowsHTML;
+        }
+        inactiveBody.innerHTML = inactiveHTML || '<tr><td>Aucun appareil désactivé.</td></tr>';
+      });
+    }
+
+    function escapeHTML(value) {
+      return String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+    document.addEventListener('click', event => {
+      const button = event.target.closest('button[data-device][data-user]');
+      if (!button) return;
+      const active = button.dataset.active === 'true';
+      database.ref(button.dataset.device + '/users' + button.dataset.device + '/' + button.dataset.user + '/active')
+        .set(!active).then(() => showNotification(active ? 'Utilisateur désactivé' : 'Utilisateur réactivé'))
+        .catch(err => alert(err.message));
+    });
+    function chargerPresence() {
+      database.ref('presence').on('value', snapshot => {
+        const now = Date.now(), entries = [];
+        snapshot.forEach(device => device.forEach(user => {
+          const data = user.val() || {};
+          const last = Number(data.lastSeen || 0);
+          entries.push({ device: device.key, user: user.key, online: data.online && now - last < 90000,
+            last, activity: data.activity || 'Connexion' });
+        }));
+        document.getElementById('presenceSummary').textContent = entries.filter(x => x.online).length + ' utilisateur(s) en ligne';
+        document.getElementById('presenceList').innerHTML = entries.map(x => `
+          <article class="presence-item">
+            <div class="presence-item-head">
+              <span class="presence-identity">${escapeHTML(x.device)} · ${escapeHTML(x.user)}</span>
+              <span class="presence-badge ${x.online ? 'online' : 'offline'}">${x.online ? 'En ligne' : 'Hors ligne'}</span>
+            </div>
+            <div class="presence-activity"><i class="fas fa-bolt"></i> ${escapeHTML(x.activity)}</div>
+            <div class="presence-time"><i class="far fa-clock"></i> ${x.last ? new Date(x.last).toLocaleString('fr-FR') : 'Aucune activité enregistrée'}</div>
+          </article>`).join('') || '<div class="presence-item">Aucune activité enregistrée.</div>';
+      });
+    }
+
+    // Charger les utilisateurs dès le début
+    chargerUtilisateurs();
+    chargerPresence();
+  </script>
+</body>
+</html>
